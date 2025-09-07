@@ -72,30 +72,7 @@ jobs:
     name: Backend Build Check
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_DB: nexara_build_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    # Database and Redis services removed as requested
 
     steps:
       - uses: actions/checkout@v4
@@ -114,23 +91,7 @@ jobs:
         if: success()
         run: echo "Backend dependencies installed successfully ✅"
 
-      - name: Generate Prisma Client
-        working-directory: backend
-        run: npm run db:generate
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexara_build_test
-      - name: ✅ Prisma Client Generated
-        if: success()
-        run: echo "Prisma client generated successfully ✅"
-
-      - name: Check Database Connection
-        working-directory: backend
-        run: npm run db:push
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexara_build_test
-      - name: ✅ Database Connection Successful
-        if: success()
-        run: echo "Database connection successful ✅"
+      # Database and Redis checks removed as requested
 
       - name: Build Backend (if build script exists)
         working-directory: backend
