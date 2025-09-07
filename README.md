@@ -397,7 +397,6 @@ npm run format:check
 | Endpoint                    | Method | Description                              |
 | --------------------------- | ------ | ---------------------------------------- |
 | `/health`                   | GET    | Server health check                      |
-| `/api/test`                 | GET    | API connectivity test                    |
 | `/api/jira/projects`        | GET    | List Jira projects _(coming soon)_       |
 | `/api/automation/workflows` | GET    | Automation workflows _(coming soon)_     |
 | `/api/ai/summarize`         | POST   | AI-powered summarization _(coming soon)_ |

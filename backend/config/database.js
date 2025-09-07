@@ -1,28 +1,27 @@
 const { PrismaClient } = require('@prisma/client');
 
+// Create a singleton instance of PrismaClient
 const prisma = new PrismaClient({
-  log: ['error'],
+  log:
+    process.env.NODE_ENV === 'development'
+      ? ['query', 'info', 'warn', 'error']
+      : ['error'],
+  errorFormat: 'pretty',
 });
-const testConnection = async () => {
-  try {
-    await prisma.$connect();
-    console.log('✅ Database connected successfully (Prisma)');
-  } catch (err) {
-    console.error('❌ Database connection failed:', err.message);
-    process.exit(1);
-  }
-};
 
-const disconnectDatabase = async () => {
-  try {
-    await prisma.$disconnect();
-  } catch (err) {
-    console.error('❌ Database disconnection failed:', err.message);
-  }
-};
+// Handle graceful shutdown
+process.on('beforeExit', async () => {
+  await prisma.$disconnect();
+});
 
-module.exports = {
-  prisma,
-  testConnection,
-  disconnectDatabase,
-};
+process.on('SIGINT', async () => {
+  await prisma.$disconnect();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  await prisma.$disconnect();
+  process.exit(0);
+});
+
+module.exports = prisma;
