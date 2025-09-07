@@ -10,16 +10,9 @@ const getIssuesByColumn = async (req, res) => {
     const { page = 1, limit = 10, search } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Verify column access through project ownership
-    const column = await prisma.column.findFirst({
-      where: {
-        id: columnId,
-        board: {
-          project: {
-            ownerId: userId,
-          },
-        },
-      },
+    // Check if column exists
+    const column = await prisma.column.findUnique({
+      where: { id: columnId },
     });
 
     if (!column) {
