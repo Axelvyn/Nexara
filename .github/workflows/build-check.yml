@@ -66,17 +66,7 @@ jobs:
         if: success()
         run: echo "Build output size check passed ✅"
 
-      - name: Test Production Build
-        working-directory: frontend
-        run: |
-          echo "Testing production build..."
-          npm run start &
-          sleep 10
-          curl -f http://localhost:3000 || echo "Production build test completed"
-          pkill -f "next start" || true
-      - name: ✅ Production Build Test Passed
-        if: success()
-        run: echo "Production build test passed ✅"
+      # Test case flows have been removed as requested
 
   backend-build:
     name: Backend Build Check
@@ -155,27 +145,7 @@ jobs:
         if: success()
         run: echo "Backend build check passed ✅"
 
-      - name: Test Backend Startup
-        working-directory: backend
-        run: |
-          echo "Testing backend startup..."
-          timeout 30s npm start &
-          sleep 5
-          if curl -f http://localhost:4000/health || curl -f http://localhost:4000/api/health || curl -f http://localhost:4000/; then
-            echo "Backend started successfully"
-          else
-            echo "Backend startup test completed"
-          fi
-          pkill -f "node server.js" || pkill -f "npm start" || true
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexara_build_test
-          REDIS_URL: redis://localhost:6379
-          JWT_SECRET: build-test-secret
-          NODE_ENV: production
-          PORT: 4000
-      - name: ✅ Backend Startup Test Passed
-        if: success()
-        run: echo "Backend startup test passed ✅"
+      # Test case flows have been removed as requested
 
   docker-build:
     name: Docker Build Check
