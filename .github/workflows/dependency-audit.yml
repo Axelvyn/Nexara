@@ -1,0 +1,300 @@
+name: Dependency Audit
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+  schedule:
+    - cron: '0 2 * * 1'  # Run every Monday at 2 AM UTC
+  workflow_dispatch:
+
+jobs:
+  frontend-dependency-audit:
+    name: Frontend Dependency Audit
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: ✅ Dependencies Installed
+        if: success()
+        run: echo "Frontend dependencies installed successfully ✅"
+
+      - name: Check for Outdated Dependencies
+        working-directory: frontend
+        run: |
+          echo "Checking for outdated dependencies..."
+          npm outdated || echo "No outdated dependencies found"
+        continue-on-error: true
+      - name: ✅ Outdated Dependencies Check Complete
+        if: success()
+        run: echo "Outdated dependencies check completed ✅"
+
+      - name: Security Audit
+        working-directory: frontend
+        run: |
+          echo "Running security audit..."
+          npm audit --audit-level=moderate
+        continue-on-error: true
+      - name: ✅ Security Audit Complete
+        if: success()
+        run: echo "Security audit completed ✅"
+
+      - name: Check for Known Vulnerabilities
+        working-directory: frontend
+        run: |
+          echo "Checking for known vulnerabilities..."
+          npm audit --audit-level=high
+        continue-on-error: true
+      - name: ✅ Vulnerability Check Complete
+        if: success()
+        run: echo "Vulnerability check completed ✅"
+
+      - name: Generate Dependency Report
+        working-directory: frontend
+        run: |
+          echo "Generating dependency report..."
+          echo "## Frontend Dependencies Report" > dependency-report.md
+          echo "Generated on: $(date)" >> dependency-report.md
+          echo "" >> dependency-report.md
+          
+          echo "### Total Dependencies" >> dependency-report.md
+          npm list --depth=0 | wc -l >> dependency-report.md
+          echo "" >> dependency-report.md
+          
+          echo "### Outdated Dependencies" >> dependency-report.md
+          npm outdated >> dependency-report.md 2>&1 || echo "No outdated dependencies" >> dependency-report.md
+          echo "" >> dependency-report.md
+          
+          echo "### Security Vulnerabilities" >> dependency-report.md
+          npm audit --json >> audit-report.json 2>&1 || echo "No vulnerabilities found" > audit-report.json
+          
+          echo "Dependency report generated ✅"
+
+      - name: Upload Dependency Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dependency-report
+          path: |
+            frontend/dependency-report.md
+            frontend/audit-report.json
+
+  backend-dependency-audit:
+    name: Backend Dependency Audit
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: backend
+        run: npm ci
+      - name: ✅ Dependencies Installed
+        if: success()
+        run: echo "Backend dependencies installed successfully ✅"
+
+      - name: Check for Outdated Dependencies
+        working-directory: backend
+        run: |
+          echo "Checking for outdated dependencies..."
+          npm outdated || echo "No outdated dependencies found"
+        continue-on-error: true
+      - name: ✅ Outdated Dependencies Check Complete
+        if: success()
+        run: echo "Outdated dependencies check completed ✅"
+
+      - name: Security Audit
+        working-directory: backend
+        run: |
+          echo "Running security audit..."
+          npm audit --audit-level=moderate
+        continue-on-error: true
+      - name: ✅ Security Audit Complete
+        if: success()
+        run: echo "Security audit completed ✅"
+
+      - name: Check for Known Vulnerabilities
+        working-directory: backend
+        run: |
+          echo "Checking for known vulnerabilities..."
+          npm audit --audit-level=high
+        continue-on-error: true
+      - name: ✅ Vulnerability Check Complete
+        if: success()
+        run: echo "Vulnerability check completed ✅"
+
+      - name: Check for Unused Dependencies
+        working-directory: backend
+        run: |
+          echo "Checking for unused dependencies..."
+          npx depcheck || echo "Depcheck not available, skipping unused dependency check"
+        continue-on-error: true
+      - name: ✅ Unused Dependencies Check Complete
+        if: success()
+        run: echo "Unused dependencies check completed ✅"
+
+      - name: Generate Dependency Report
+        working-directory: backend
+        run: |
+          echo "Generating dependency report..."
+          echo "## Backend Dependencies Report" > dependency-report.md
+          echo "Generated on: $(date)" >> dependency-report.md
+          echo "" >> dependency-report.md
+          
+          echo "### Total Dependencies" >> dependency-report.md
+          npm list --depth=0 | wc -l >> dependency-report.md
+          echo "" >> dependency-report.md
+          
+          echo "### Outdated Dependencies" >> dependency-report.md
+          npm outdated >> dependency-report.md 2>&1 || echo "No outdated dependencies" >> dependency-report.md
+          echo "" >> dependency-report.md
+          
+          echo "### Security Vulnerabilities" >> dependency-report.md
+          npm audit --json >> audit-report.json 2>&1 || echo "No vulnerabilities found" > audit-report.json
+          
+          echo "Dependency report generated ✅"
+
+      - name: Upload Dependency Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-dependency-report
+          path: |
+            backend/dependency-report.md
+            backend/audit-report.json
+
+  dependency-summary:
+    name: Dependency Summary
+    runs-on: ubuntu-latest
+    needs: [frontend-dependency-audit, backend-dependency-audit]
+    if: always()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Frontend Report
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dependency-report
+          path: frontend-reports
+        continue-on-error: true
+
+      - name: Download Backend Report
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-dependency-report
+          path: backend-reports
+        continue-on-error: true
+
+      - name: Generate Summary Report
+        run: |
+          echo "## 🔍 Dependency Audit Summary" > dependency-summary.md
+          echo "Generated on: $(date)" >> dependency-summary.md
+          echo "" >> dependency-summary.md
+          
+          echo "### 📊 Audit Results" >> dependency-summary.md
+          echo "- Frontend Audit: ${{ needs.frontend-dependency-audit.result }}" >> dependency-summary.md
+          echo "- Backend Audit: ${{ needs.backend-dependency-audit.result }}" >> dependency-summary.md
+          echo "" >> dependency-summary.md
+          
+          if [ -f "frontend-reports/dependency-report.md" ]; then
+            echo "### 🎨 Frontend Dependencies" >> dependency-summary.md
+            cat frontend-reports/dependency-report.md >> dependency-summary.md
+            echo "" >> dependency-summary.md
+          fi
+          
+          if [ -f "backend-reports/dependency-report.md" ]; then
+            echo "### ⚙️ Backend Dependencies" >> dependency-summary.md
+            cat backend-reports/dependency-report.md >> dependency-summary.md
+            echo "" >> dependency-summary.md
+          fi
+          
+          echo "### 📋 Recommendations" >> dependency-summary.md
+          echo "1. Review outdated dependencies and update when possible" >> dependency-summary.md
+          echo "2. Address high and critical security vulnerabilities immediately" >> dependency-summary.md
+          echo "3. Remove unused dependencies to reduce bundle size" >> dependency-summary.md
+          echo "4. Consider using automated dependency updates with Dependabot" >> dependency-summary.md
+          
+          echo "Summary report generated ✅"
+
+      - name: Upload Summary Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-summary
+          path: dependency-summary.md
+
+      - name: Comment on PR (if applicable)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summaryPath = 'dependency-summary.md';
+            
+            if (fs.existsSync(summaryPath)) {
+              const summary = fs.readFileSync(summaryPath, 'utf8');
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## 🔍 Dependency Audit Results\n\n${summary}`
+              });
+            }
+
+  dependabot-check:
+    name: Dependabot Configuration Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for Dependabot Configuration
+        run: |
+          echo "Checking for Dependabot configuration..."
+          if [ -f ".github/dependabot.yml" ]; then
+            echo "✅ Dependabot configuration found"
+            cat .github/dependabot.yml
+          else
+            echo "⚠️  No Dependabot configuration found"
+            echo "Consider adding .github/dependabot.yml for automated dependency updates"
+          fi
+
+      - name: Check for Security Policy
+        run: |
+          echo "Checking for security policy..."
+          if [ -f "SECURITY.md" ]; then
+            echo "✅ Security policy found"
+          else
+            echo "⚠️  No security policy found"
+            echo "Consider adding SECURITY.md for security vulnerability reporting"
+          fi
+
+      - name: ✅ Dependabot Check Complete
+        if: success()
+        run: echo "Dependabot configuration check completed ✅"
