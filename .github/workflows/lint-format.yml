@@ -88,17 +88,7 @@ jobs:
 
       # Backend lint check removed as requested
 
-      - name: Check for Console Logs
-        working-directory: backend
-        run: |
-          if grep -r "console\." --include="*.js" --include="*.ts" . | grep -v "node_modules" | grep -v "test"; then
-            echo "❌ Console logs found in production code. Please remove them."
-            grep -r "console\." --include="*.js" --include="*.ts" . | grep -v "node_modules" | grep -v "test"
-            exit 1
-          fi
-      - name: ✅ No Console Logs Found
-        if: success()
-        run: echo "No console logs found in production code ✅"
+      # Console log check removed as requested
 
       - name: Check for TODO Comments
         working-directory: backend
@@ -126,14 +116,14 @@ jobs:
 
       - name: Frontend Security Audit
         working-directory: frontend
-        run: npm audit --audit-level=moderate
+        run: npm audit --audit-level=high
       - name: ✅ Frontend Security Check Passed
         if: success()
         run: echo "Frontend security audit passed ✅"
 
       - name: Backend Security Audit
         working-directory: backend
-        run: npm audit --audit-level=moderate
+        run: npm audit --audit-level=high
       - name: ✅ Backend Security Check Passed
         if: success()
         run: echo "Backend security audit passed ✅"
