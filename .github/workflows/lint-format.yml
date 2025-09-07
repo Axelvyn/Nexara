@@ -1,0 +1,144 @@
+name: Lint and Format Check
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+  workflow_dispatch:
+
+jobs:
+  frontend-lint-format:
+    name: Frontend Lint & Format
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: ✅ Dependencies Installed
+        if: success()
+        run: echo "Frontend dependencies installed successfully ✅"
+
+      - name: Check Prettier Formatting
+        working-directory: frontend
+        run: npm run format:check
+      - name: ✅ Formatting Check Passed
+        if: success()
+        run: echo "Prettier formatting check passed ✅"
+
+      - name: Run ESLint
+        working-directory: frontend
+        run: npm run lint
+      - name: ✅ Lint Check Passed
+        if: success()
+        run: echo "ESLint check passed ✅"
+
+      - name: Check TypeScript Types
+        working-directory: frontend
+        run: npx tsc --noEmit
+      - name: ✅ TypeScript Check Passed
+        if: success()
+        run: echo "TypeScript type check passed ✅"
+
+  backend-lint-format:
+    name: Backend Lint & Format
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: backend
+        run: npm ci
+      - name: ✅ Dependencies Installed
+        if: success()
+        run: echo "Backend dependencies installed successfully ✅"
+
+      - name: Check Prettier Formatting
+        working-directory: backend
+        run: npm run format:check
+      - name: ✅ Formatting Check Passed
+        if: success()
+        run: echo "Prettier formatting check passed ✅"
+
+      - name: Run ESLint
+        working-directory: backend
+        run: npm run lint
+      - name: ✅ Lint Check Passed
+        if: success()
+        run: echo "ESLint check passed ✅"
+
+      - name: Check for Console Logs
+        working-directory: backend
+        run: |
+          if grep -r "console\." --include="*.js" --include="*.ts" . | grep -v "node_modules" | grep -v "test"; then
+            echo "❌ Console logs found in production code. Please remove them."
+            grep -r "console\." --include="*.js" --include="*.ts" . | grep -v "node_modules" | grep -v "test"
+            exit 1
+          fi
+      - name: ✅ No Console Logs Found
+        if: success()
+        run: echo "No console logs found in production code ✅"
+
+      - name: Check for TODO Comments
+        working-directory: backend
+        run: |
+          if grep -r "TODO\|FIXME\|HACK" --include="*.js" --include="*.ts" . | grep -v "node_modules" | grep -v "test"; then
+            echo "⚠️  TODO/FIXME/HACK comments found:"
+            grep -r "TODO\|FIXME\|HACK" --include="*.js" --include="*.ts" . | grep -v "node_modules" | grep -v "test"
+            echo "Consider addressing these before merging."
+          fi
+      - name: ✅ Code Quality Check Complete
+        if: success()
+        run: echo "Code quality check completed ✅"
+
+  security-check:
+    name: Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Frontend Security Audit
+        working-directory: frontend
+        run: npm audit --audit-level=moderate
+      - name: ✅ Frontend Security Check Passed
+        if: success()
+        run: echo "Frontend security audit passed ✅"
+
+      - name: Backend Security Audit
+        working-directory: backend
+        run: npm audit --audit-level=moderate
+      - name: ✅ Backend Security Check Passed
+        if: success()
+        run: echo "Backend security audit passed ✅"
