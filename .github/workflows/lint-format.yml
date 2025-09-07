@@ -86,12 +86,7 @@ jobs:
         if: success()
         run: echo "Prettier formatting check passed ✅"
 
-      - name: Run ESLint
-        working-directory: backend
-        run: npm run lint
-      - name: ✅ Lint Check Passed
-        if: success()
-        run: echo "ESLint check passed ✅"
+      # Backend lint check removed as requested
 
       - name: Check for Console Logs
         working-directory: backend
