@@ -46,28 +46,27 @@ const hasRole = (userRole, requiredRole) => {
 
 // Get user's role in a project
 const getUserProjectRole = async (userId, projectId) => {
-  // Check if user is project owner
-  const project = await prisma.project.findFirst({
-    where: {
-      id: projectId,
-      ownerId: userId,
-    },
-  });
+  // Query both project ownership and membership in parallel
+  const [project, member] = await Promise.all([
+    prisma.project.findFirst({
+      where: {
+        id: projectId,
+        ownerId: userId,
+      },
+    }),
+    prisma.projectMember.findUnique({
+      where: {
+        projectId_userId: {
+          projectId,
+          userId,
+        },
+      },
+    }),
+  ]);
 
   if (project) {
     return 'OWNER';
   }
-
-  // Check if user is a project member
-  const member = await prisma.projectMember.findUnique({
-    where: {
-      projectId_userId: {
-        projectId,
-        userId,
-      },
-    },
-  });
-
   return member ? member.role : null;
 };
 
