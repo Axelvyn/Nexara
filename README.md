@@ -409,6 +409,74 @@ npm run format:check
 - **API Health Check**: http://localhost:5000/health
 
 ---
+## Logo Usage Guidelines  
+🎨 Nexara Logo Usage Guidelines
+
+The Nexara logo represents automation, AI, and simplicity. It should always be used in a way that maintains clarity, accessibility, and consistency across platforms.
+
+📂 File Locations
+
+All logo assets are stored in:
+
+public/assets/logos/
+
+Available Variants
+
+nexara-logo-icon.svg → Icon only (used in favicon, app icon, small placements).
+
+nexara-logo-horizontal.svg → Icon + Text (primary lockup).
+
+nexara-logo-dark.png → For light backgrounds.
+
+nexara-logo-light.png → For dark backgrounds.
+
+🌗 Theme Guidelines
+
+Light Mode → Use nexara-logo-dark.png.
+
+Dark Mode → Use nexara-logo-light.png.
+
+✅ Correct Usage
+
+Always use transparent background logos in product (web/app).
+
+Maintain clear space: at least half the icon’s width around the logo.
+
+Scale proportionally — never stretch or distort.
+
+Minimum recommended width: 120px for horizontal logo.
+
+❌ Incorrect Usage
+
+❌ Do not change colors or gradients.
+
+❌ Do not add shadows, outlines, or effects.
+
+❌ Do not rotate or skew the logo.
+
+❌ Do not place on backgrounds with poor contrast (use the correct variant instead).
+
+📏 Recommended Use Cases
+
+App Navbar / Header → nexara-logo-horizontal.svg
+
+Dashboard / Footer → nexara-logo-horizontal.svg (theme-specific)
+
+Docs / Marketing pages → Horizontal lockup
+
+Favicon / Mobile app icon → nexara-logo-icon.svg
+
+🧪 Testing
+
+Verify logos are crisp on multiple screen sizes.
+
+Test responsiveness of SVGs in the Next.js app.
+
+Check file paths resolve correctly.
+
+Always provide alt="Nexara logo" for accessibility.
+
+✨ The Nexara logo is the face of our brand. Use it consistently and thoughtfully to reinforce trust and recognition.
 
 ## 📜 Code of Conduct
 
