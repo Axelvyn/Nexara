@@ -1,0 +1,164 @@
+# Labeler configuration for Nexara project
+# This file defines rules for automatically applying labels to PRs based on file changes
+
+# Add 'backend' label for backend-related files
+'backend':
+  - backend/**
+  - backend/**/*
+
+# Add 'frontend' label for frontend-related files
+'frontend':
+  - frontend/**
+  - frontend/**/*
+
+# Add 'api' label for API-related files
+'api':
+  - backend/controllers/**
+  - backend/routes/**
+  - backend/middleware/**
+  - backend/services/**
+  - backend/utils/**
+
+# Add 'database' label for database-related files
+'database':
+  - backend/prisma/**
+  - backend/config/database.js
+  - backend/migrations/**
+
+# Add 'auth' label for authentication-related files
+'auth':
+  - backend/controllers/authController.js
+  - backend/middleware/auth.js
+  - backend/utils/jwt.js
+  - backend/utils/password.js
+  - frontend/lib/auth.ts
+
+# Add 'ui' label for UI components
+'ui':
+  - frontend/components/**
+  - frontend/app/landingpage/components/**
+  - frontend/components/ui/**
+
+# Add 'pages' label for page components
+'pages':
+  - frontend/app/**
+  - frontend/app/**/page.tsx
+
+# Add 'styling' label for styling-related files
+'styling':
+  - frontend/app/globals.css
+  - frontend/tailwind.config.js
+  - frontend/postcss.config.mjs
+  - frontend/components.json
+
+# Add 'config' label for configuration files
+'config':
+  - frontend/next.config.ts
+  - frontend/tsconfig.json
+  - frontend/vitest.config.ts
+  - frontend/eslint.config.js
+  - frontend/.prettierrc
+  - backend/.eslintrc.js
+  - backend/.prettierrc
+  - backend/.prettierignore
+  - backend/env.example
+
+# Add 'ci' label for GitHub Actions workflows
+'ci':
+  - .github/workflows/**
+
+# Add 'documentation' label for documentation-related files
+'documentation':
+  - README.md
+  - LICENSE
+  - CONTRIBUTING.md
+  - CODE_OF_CONDUCT.md
+  - COMMUNITY_GUIDELINES.md
+  - SECURITY.md
+  - backend/README.md
+  - backend/SETUP.md
+  - backend/RBAC.md
+  - backend/API_TESTS.md
+  - docs/**
+
+# Add 'testing' label for test-related files
+'testing':
+  - frontend/test-setup.ts
+  - frontend/vitest.config.ts
+  - backend/**/*.test.js
+  - backend/**/*.spec.js
+  - frontend/**/*.test.ts
+  - frontend/**/*.test.tsx
+  - frontend/**/*.spec.ts
+  - frontend/**/*.spec.tsx
+
+# Add 'docker' label for Docker-related files
+'docker':
+  - Dockerfile
+  - docker-compose.yml
+  - .dockerignore
+  - frontend/Dockerfile
+  - frontend/.dockerignore
+  - backend/Dockerfile
+  - backend/.dockerignore
+
+# Add 'dependencies' label for package files
+'dependencies':
+  - frontend/package.json
+  - frontend/package-lock.json
+  - backend/package.json
+  - backend/package-lock.json
+
+# Add 'hooks' label for React hooks
+'hooks':
+  - frontend/hooks/**
+
+# Add 'lib' label for utility libraries
+'lib':
+  - frontend/lib/**
+
+# Add 'types' label for TypeScript type definitions
+'types':
+  - frontend/**/*.d.ts
+  - backend/**/*.d.ts
+
+# Add 'security' label for security-related files
+'security':
+  - backend/middleware/auth.js
+  - backend/middleware/rbac.js
+  - backend/utils/jwt.js
+  - backend/utils/password.js
+  - backend/controllers/authController.js
+
+# Add 'performance' label for performance-related changes
+'performance':
+  - frontend/next.config.ts
+  - backend/middleware/compression.js
+  - backend/config/**
+
+# Add 'bugfix' label for bug fixes (can be manually added or detected)
+'bugfix':
+  - '**/*fix*'
+  - '**/*bug*'
+  - '**/*error*'
+
+# Add 'feature' label for new features (can be manually added or detected)
+'feature':
+  - '**/*feature*'
+  - '**/*new*'
+  - '**/*add*'
+
+# Add 'refactor' label for refactoring changes
+'refactor':
+  - '**/*refactor*'
+  - '**/*cleanup*'
+  - '**/*optimize*'
+
+# Add 'breaking-change' label for breaking changes
+'breaking-change':
+  - '**/*breaking*'
+  - '**/*major*'
+
+# Add 'other' label as a fallback for any other files
+'other':
+  - '*'
