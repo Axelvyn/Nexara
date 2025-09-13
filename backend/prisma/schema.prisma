@@ -18,6 +18,11 @@ model User {
 
   // reverse relation to Project
   projects Project[]
+  // reverse relation to Issues
+  assignedIssues Issue[] @relation("IssueAssignee")
+  reportedIssues Issue[] @relation("IssueReporter")
+  // reverse relation to ProjectMembers
+  projectMembers ProjectMember[]
 
   @@map("users")
 }
@@ -29,6 +34,7 @@ model Project {
   ownerId     String
   owner       User     @relation(fields: [ownerId], references: [id])
   boards      Board[]
+  members     ProjectMember[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -56,6 +62,70 @@ model Column {
   orderIndex Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  issues     Issue[]
 
   @@map("columns")
+}
+
+model Issue {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  type        IssueType @default(TASK)
+  priority    Priority @default(MEDIUM)
+  status      IssueStatus @default(TODO)
+  columnId    String
+  column      Column   @relation(fields: [columnId], references: [id])
+  assigneeId  String?
+  assignee    User?    @relation(fields: [assigneeId], references: [id])
+  reporterId  String
+  reporter    User     @relation(fields: [reporterId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("issues")
+}
+
+enum IssueType {
+  BUG
+  FEATURE
+  TASK
+  STORY
+  EPIC
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum IssueStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+}
+
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  role      ProjectRole @default(VIEWER)
+  joinedAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@map("project_members")
+}
+
+enum ProjectRole {
+  OWNER       // Full access to everything
+  ADMIN       // Can manage project settings, members, boards
+  DEVELOPER   // Can create/edit issues, move between columns
+  VIEWER      // Read-only access
 }

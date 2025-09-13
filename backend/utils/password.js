@@ -1,40 +1,62 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
+// Hash password
 const hashPassword = async password => {
-  try {
-    const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 12;
-    return await bcrypt.hash(password, saltRounds);
-  } catch (error) {
-    throw new Error(`Password hashing failed: ${error.message}`);
-  }
+  const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 12;
+  return await bcrypt.hash(password, saltRounds);
 };
 
+// Compare password
 const comparePassword = async (password, hashedPassword) => {
-  try {
-    return await bcrypt.compare(password, hashedPassword);
-  } catch (error) {
-    throw new Error(`Password comparison failed: ${error.message}`);
-  }
+  return await bcrypt.compare(password, hashedPassword);
 };
 
+// Generate random password
+const generateRandomPassword = (length = 12) => {
+  const charset =
+    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+  let password = '';
+
+  for (let i = 0; i < length; i++) {
+    password += charset.charAt(Math.floor(Math.random() * charset.length));
+  }
+
+  return password;
+};
+
+// Validate password strength
 const validatePasswordStrength = password => {
-  const isValid =
-    password.length >= 8 &&
-    /[a-z]/.test(password) && // at least one lowercase
-    /[A-Z]/.test(password) && // at least one uppercase
-    /\d/.test(password) && // at least one number
-    /[!@#$%^&*(),.?":{}|<>]/.test(password); // at least one special character
+  const errors = [];
+
+  if (password.length < 8) {
+    errors.push('Password must be at least 8 characters long');
+  }
+
+  if (!/[a-z]/.test(password)) {
+    errors.push('Password must contain at least one lowercase letter');
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Password must contain at least one uppercase letter');
+  }
+
+  if (!/\d/.test(password)) {
+    errors.push('Password must contain at least one number');
+  }
+
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    errors.push('Password must contain at least one special character');
+  }
 
   return {
-    isValid,
-    message: isValid
-      ? 'Password is strong'
-      : 'Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one number, and one special character.',
+    isValid: errors.length === 0,
+    errors,
   };
 };
 
 module.exports = {
   hashPassword,
   comparePassword,
+  generateRandomPassword,
   validatePasswordStrength,
 };

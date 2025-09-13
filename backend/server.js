@@ -1,69 +1,104 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
-const projectRoutes = require('./routes/project.routes');
-const contactRoutes = require('./routes/contact.routes');
 
-const { validateEnv } = require('./config/env');
-const { testConnection, disconnectDatabase } = require('./config/database');
+const { errorHandler } = require('./middleware/errorHandler');
+const { notFound } = require('./middleware/notFound');
 
-try {
-  validateEnv();
-} catch (error) {
-  console.error('❌ Environment validation failed:', error.message);
-  process.exit(1);
-}
+// Import routes
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const projectRoutes = require('./routes/projects');
+const projectMemberRoutes = require('./routes/projectMembers');
+const boardRoutes = require('./routes/boards');
+const issueRoutes = require('./routes/issues');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Security middleware
+app.use(helmet());
 
+// CORS configuration
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+  message: {
+    error: 'Too many requests from this IP, please try again later.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use('/api/', limiter);
+
+// Compression middleware
+app.use(compression());
+
+// Logging middleware
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+} else {
+  app.use(morgan('combined'));
+}
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
-    message: 'Zenjira Backend Server is running!',
     timestamp: new Date().toISOString(),
-    version: '1.0.0',
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV,
+    version: process.env.npm_package_version || '1.0.0',
   });
 });
 
-const authRoutes = require('./routes/auth.routes');
+// API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/projects', projectMemberRoutes);
+app.use('/api/boards', boardRoutes);
+app.use('/api/issues', issueRoutes);
 
-const leaderboardRoutes = require('./routes/leaderboard.routes');
-app.use('/api/leaderboard', leaderboardRoutes);
-app.use('/api/project', projectRoutes);
-app.use('/api/contact', contactRoutes);
+// 404 handler
+app.use(notFound);
 
-const {
-  globalErrorHandler,
-  handleNotFound,
-} = require('./middleware/errorHandler');
+// Global error handler
+app.use(errorHandler);
 
-app.use('*', handleNotFound);
-app.use(globalErrorHandler);
-testConnection();
-
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Zenjira Backend Server running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  process.exit(0);
 });
 
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM received, shutting down gracefully');
-  server.close(() => {
-    disconnectDatabase().then(() => process.exit(0));
-  });
+process.on('SIGINT', () => {
+  console.log('SIGINT received. Shutting down gracefully...');
+  process.exit(0);
 });
 
-process.on('SIGINT', async () => {
-  console.log('SIGINT received, shutting down gracefully');
-  server.close(() => {
-    disconnectDatabase().then(() => process.exit(0));
-  });
+// Start server
+app.listen(PORT, () => {
+  console.log(`API is running on port ${PORT}`);
 });
 
 module.exports = app;

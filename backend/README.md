@@ -1,243 +1,243 @@
 # Nexara Backend API
 
-A Node.js backend server for the Nexara project management platform.
+A robust Node.js/Express backend API for the Nexara project management platform, built with Prisma ORM and PostgreSQL.
 
-## 🚀 Quick Start (5 minutes)
+## 🚀 Features
 
-### What you need:
+- **User Authentication**: JWT-based authentication with registration, login, and profile management
+- **Role-Based Access Control**: Comprehensive RBAC system with 4 user roles (Owner, Admin, Developer, Viewer)
+- **Project Management**: Create, read, update, and delete projects with member management
+- **Board Management**: Kanban-style boards with customizable columns
+- **Issue Tracking**: Comprehensive issue management with types, priorities, and status tracking
+- **Member Management**: Add/remove project members, change roles, transfer ownership
+- **Security**: Helmet, CORS, rate limiting, input validation, and permission-based access
+- **Database**: PostgreSQL with Prisma ORM for type-safe database operations
+- **Error Handling**: Comprehensive error handling and logging
 
-- **Node.js** (version 18 or higher) - JavaScript runtime
-- **PostgreSQL** (version 13 or higher) - Database
-- **npm** (version 8 or higher) - Package manager
+## 🛠 Technology Stack
 
-### Step-by-step setup:
+- **Runtime**: Node.js 18+
+- **Framework**: Express.js
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT (JSON Web Tokens)
+- **Security**: Helmet, CORS, bcryptjs
+- **Validation**: express-validator
+- **Logging**: Morgan
+- **Development**: Nodemon
+
+## 📋 Prerequisites
+
+- Node.js 18+ and npm
+- PostgreSQL database
+- Git
+
+## 🚀 Quick Start
+
+### 1. Install Dependencies
 
 ```bash
-# 1. Go to the backend folder
-cd backend
-
-# 2. Install required packages
 npm install
-
-# 3. Create environment file (copy from example)
-cp .env.example .env
-
-# 4. Set up your database
-npm run db:generate    # Creates database client
-npm run db:migrate     # Creates database tables
-npm run db:seed        # Adds sample data
-
-# 5. Start the server
-npm run dev
 ```
 
-**That's it!** Your server will run on `http://localhost:5000`
-
-## 🔧 Configuration
-
-### Environment Variables (.env file)
-
-```env
-# Server runs on this port
-PORT=5000
-
-# Database connection (PostgreSQL)
-DATABASE_URL=postgresql://username:password@localhost:5432/nexara
-
-# Security keys
-JWT_SECRET=your-secret-key-here
-JWT_EXPIRES_IN=8h
-
-# Frontend URL (for CORS)
-CORS_ORIGIN="http://localhost:3000"
-```
-
-**Important:** Replace `username`, `password`, and `your-secret-key-here` with your actual values.
-
-## 📡 API Endpoints
-
-### Health Check
-
-- **GET** `/health` - Check if server is running
-
-### User Authentication
-
-- **POST** `/api/auth/register` - Create new user account
-- **POST** `/api/auth/login` - Login user
-- **POST** `/api/auth/logout` - Logout user
-
-### Project Management
-
-- **GET** `/api/project` - Get all projects
-- **POST** `/api/project` - Create new project
-- **GET** `/api/project/:id` - Get specific project
-- **PUT** `/api/project/:id` - Update project
-- **DELETE** `/api/project/:id` - Delete project
-
-### Leaderboard
-
-- **GET** `/api/leaderboard` - Get user rankings
-
-## 🗃️ Database
-
-**PostgreSQL** is used to store data with these main tables:
-
-- **users** - User accounts and login info
-- **projects** - Project information
-- **boards** - Project boards (like Kanban boards)
-- **columns** - Board columns for organizing tasks
-
-## 🏃‍♂️ Running the Server
-
-### Development (with auto-restart)
+### 2. Environment Setup
 
 ```bash
-npm run dev
+# Copy the environment template
+cp env.example .env
+
+# Edit .env with your configuration
+# At minimum, set:
+# - DATABASE_URL (PostgreSQL connection string)
+# - JWT_SECRET (random secret key)
 ```
 
-### Production (for deployment)
+### 3. Database Setup
 
 ```bash
+# Generate Prisma client
+npm run db:generate
+
+# Push schema to database (for development)
+npm run db:push
+
+# Or run migrations (for production)
+npm run db:migrate
+
+# Seed the database with sample data
+npm run db:seed
+```
+
+### 4. Start Development Server
+
+```bash
+# Start with auto-reload
+npm run dev
+
+# Or start production server
 npm start
 ```
 
-## 🛠️ Common Commands
+The API will be available at `http://localhost:5000`
+
+## 📚 API Endpoints
+
+### Authentication
+
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `POST /api/auth/refresh` - Refresh JWT token
+- `GET /api/auth/me` - Get current user (protected)
+- `POST /api/auth/logout` - Logout user (protected)
+
+### Users
+
+- `GET /api/users/profile` - Get user profile (protected)
+- `PUT /api/users/profile` - Update user profile (protected)
+- `PUT /api/users/change-password` - Change password (protected)
+- `GET /api/users/stats` - Get user statistics (protected)
+- `DELETE /api/users/deactivate` - Deactivate account (protected)
+
+### Projects
+
+- `GET /api/projects` - Get all user projects (protected)
+- `POST /api/projects` - Create new project (protected)
+- `GET /api/projects/:id` - Get single project (protected)
+- `PUT /api/projects/:id` - Update project (Admin/Owner only)
+- `DELETE /api/projects/:id` - Delete project (Owner only)
+- `GET /api/projects/:id/stats` - Get project statistics (protected)
+
+### Project Members
+
+- `GET /api/projects/:id/members` - Get project members (protected)
+- `POST /api/projects/:id/members` - Add member to project (Admin/Owner only)
+- `PUT /api/projects/:id/members/:memberId` - Update member role (Admin/Owner only)
+- `DELETE /api/projects/:id/members/:memberId` - Remove member (Admin/Owner only)
+- `DELETE /api/projects/:id/members/leave` - Leave project (protected)
+- `PUT /api/projects/:id/transfer-ownership` - Transfer ownership (Owner only)
+
+### Boards
+
+- `GET /api/boards/project/:projectId` - Get boards by project (protected)
+- `POST /api/boards` - Create new board (protected)
+- `GET /api/boards/:id` - Get single board (protected)
+- `PUT /api/boards/:id` - Update board (Admin/Owner only)
+- `DELETE /api/boards/:id` - Delete board (Admin/Owner only)
+- `GET /api/boards/:id/stats` - Get board statistics (protected)
+
+### Issues
+
+- `GET /api/issues/column/:columnId` - Get issues by column (protected)
+- `POST /api/issues` - Create new issue (Developer+)
+- `GET /api/issues/:id` - Get single issue (protected)
+- `PUT /api/issues/:id` - Update issue (Developer+)
+- `DELETE /api/issues/:id` - Delete issue (Admin/Owner only)
+- `PATCH /api/issues/:id/move` - Move issue to different column (Developer+)
+- `GET /api/issues/stats` - Get issue statistics (protected)
+
+### System
+
+- `GET /health` - Health check
+
+## 🔧 Development Commands
 
 ```bash
-# Start development server
-npm run dev
+# Development
+npm run dev          # Start with auto-reload
+npm start           # Start production server
 
-# Format code automatically
-npm run format
+# Database
+npm run db:generate # Generate Prisma client
+npm run db:push     # Push schema to database
+npm run db:migrate  # Run database migrations
+npm run db:seed     # Seed database with sample data
+npm run db:studio   # Open Prisma Studio
 
-# Check if code is properly formatted
-npm run format:check
+# Code Quality
+npm run lint        # Run ESLint
+npm run lint:fix    # Fix ESLint errors
+npm run format      # Format code with Prettier
+npm run format:check # Check code formatting
 
-# Database operations
-npm run db:generate    # Update database client
-npm run db:migrate     # Apply database changes
-npm run db:seed        # Add sample data
+# Testing
+npm test            # Run tests
+npm run test:watch  # Run tests in watch mode
 ```
 
-## 🔐 Authentication (How it works)
+## 🗄️ Database Schema
 
-1. **Register/Login** → Get a JWT token
-2. **Use token** → Include in requests: `Authorization: Bearer <token>`
-3. **Token expires** → Based on your `JWT_EXPIRES_IN` setting
+The database includes the following main entities:
 
-## 🛡️ Security Features
+- **Users**: User accounts with authentication
+- **Projects**: Project containers owned by users
+- **ProjectMembers**: Role-based membership relationships
+- **Boards**: Kanban boards within projects
+- **Columns**: Columns within boards (To Do, In Progress, etc.)
+- **Issues**: Tasks/issues with types, priorities, and status
 
-- **CORS** - Controls which websites can access your API
-- **JWT** - Secure user authentication tokens
-- **bcrypt** - Encrypts passwords safely
-- **Input validation** - Checks data before processing
-- **Error handling** - Graceful error responses
+## 🔐 Role-Based Access Control
 
-## 📁 Project Structure
+The system implements a comprehensive RBAC system with 4 user roles:
+
+- **OWNER**: Full access to everything (project creator)
+- **ADMIN**: Can manage project settings, members, and boards
+- **DEVELOPER**: Can create/edit issues and move them between columns
+- **VIEWER**: Read-only access to project data
+
+See [RBAC.md](./RBAC.md) for detailed documentation on the permission system.
+
+## 🔐 Authentication
+
+The API uses JWT (JSON Web Tokens) for authentication. Include the token in the Authorization header:
 
 ```
-backend/
-├── config/           # Settings and configuration
-├── controllers/      # Handle API requests
-├── middleware/       # Security and validation
-├── prisma/          # Database setup and migrations
-├── routes/          # API endpoint definitions
-├── services/        # Business logic
-├── utils/           # Helper functions
-├── .env             # Your environment settings
-└── server.js        # Main application file
+Authorization: Bearer <your-jwt-token>
 ```
 
-## 🚨 Troubleshooting
+## 📝 Sample Data
 
-### Server won't start?
+The seed script creates:
 
-- Check if port 5000 is available
-- Verify your `.env` file exists and has correct values
-- Make sure PostgreSQL is running
+- **Owner**: `test@nexara.com` (password: `password123`)
+- **Admin**: `admin@nexara.com` (password: `password123`)
+- **Developer**: `dev@nexara.com` (password: `password123`)
+- **Viewer**: `viewer@nexara.com` (password: `password123`)
+- Sample project with boards and issues
+- Project members with different roles for testing RBAC
+- Various issue types and priorities for testing
 
-### Database errors?
+## 🚨 Error Handling
 
-- Check your `DATABASE_URL` in `.env`
-- Ensure PostgreSQL is installed and running
-- Run `npm run db:migrate` to create tables
+The API includes comprehensive error handling:
 
-### Authentication issues?
+- Validation errors with detailed field information
+- Authentication and authorization errors
+- Database constraint errors
+- Custom error messages for different scenarios
 
-- Verify your `JWT_SECRET` is set in `.env`
-- Check if token is included in request headers
+## 🔒 Security Features
 
-## 🔄 Database Management
-
-### Create new database changes
-
-```bash
-npx prisma migrate dev --name your_change_name
-```
-
-### Apply changes to production
-
-```bash
-npm run db:migrate
-```
-
-### Reset database (development only)
-
-```bash
-npx prisma migrate reset
-```
-
-## 🚀 Deployment
-
-### For production deployment:
-
-1. Set environment variables:
-
-```bash
-export DATABASE_URL="your-production-database-url"
-export JWT_SECRET="your-production-secret"
-export NODE_ENV="production"
-```
-
-2. Run database setup:
-
-```bash
-npm run db:migrate
-```
-
-3. Start server:
-
-```bash
-npm start
-```
+- **Helmet**: Security headers
+- **CORS**: Cross-origin resource sharing configuration
+- **Rate Limiting**: Request rate limiting
+- **Input Validation**: Comprehensive input validation
+- **Password Hashing**: bcrypt for secure password storage
+- **JWT**: Secure token-based authentication
 
 ## 📊 Monitoring
 
-- **Health check**: Visit `http://localhost:5000/health`
-- **Logs**: Check console output for errors and info
-- **Database**: Monitor PostgreSQL for connection issues
+- Health check endpoint for monitoring
+- Request logging with Morgan
+- Error logging and tracking
+- Database query logging in development
 
 ## 🤝 Contributing
 
-1. Follow existing code style
-2. Run `npm run format` before committing
-3. Test your changes
-4. Update documentation if needed
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-## 📝 Need Help?
+## 📄 License
 
-- Check the troubleshooting section above
-- Look at console logs for error messages
-- Verify all environment variables are set correctly
-- Ensure PostgreSQL is running and accessible
-
----
-
-**Technical Stack:**
-
-- **Node.js** - Server runtime
-- **Express.js** - Web framework
-- **Prisma** - Database toolkit
-- **PostgreSQL** - Database
-- **JWT** - Authentication
-- **bcrypt** - Password hashing
+This project is licensed under the MIT License.
