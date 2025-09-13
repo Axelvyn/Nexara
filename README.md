@@ -409,7 +409,6 @@ npm run format:check
 - **API Health Check**: http://localhost:5000/health
 
 ---
-
 ## 📜 Code of Conduct
 
 Please read our [Code of Conduct](./CODE_OF_CONDUCT.md) to understand the expected behavior in this community.
