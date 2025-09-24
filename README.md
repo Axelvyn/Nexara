@@ -1,6 +1,3 @@
-[![OSCI-Project-Banner.png](https://i.postimg.cc/76mJvBmF/OSCI-Project-Banner.png)](https://postimg.cc/8JfzMb84)
-<div align="center">
-
 # AI-Powered Project Management Platform
 
 </div>
