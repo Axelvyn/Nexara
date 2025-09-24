@@ -1,79 +1,71 @@
-class AppError extends Error {
-  constructor(message, statusCode, code = null) {
-    super(message);
-    this.statusCode = statusCode;
-    this.code = code;
-    this.isOperational = true;
-
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
-
-const globalErrorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
-  console.error('Error:', {
-    message: err.message,
-    url: req.originalUrl,
-    method: req.method,
-  });
+  // Log error
+  console.error(err);
 
+  // Mongoose bad ObjectId
+  if (err.name === 'CastError') {
+    const message = 'Resource not found';
+    error = { message, statusCode: 404 };
+  }
+
+  // Mongoose duplicate key
+  if (err.code === 11000) {
+    const message = 'Duplicate field value entered';
+    error = { message, statusCode: 400 };
+  }
+
+  // Mongoose validation error
+  if (err.name === 'ValidationError') {
+    const message = Object.values(err.errors)
+      .map(val => val.message)
+      .join(', ');
+    error = { message, statusCode: 400 };
+  }
+
+  // Prisma errors
   if (err.code === 'P2002') {
-    error = new AppError(
-      'Duplicate field value entered',
-      409,
-      'DUPLICATE_FIELD'
-    );
+    const message = 'Duplicate field value entered';
+    error = { message, statusCode: 400 };
   }
 
   if (err.code === 'P2025') {
-    error = new AppError('Resource not found', 404, 'RESOURCE_NOT_FOUND');
+    const message = 'Record not found';
+    error = { message, statusCode: 404 };
   }
 
+  if (err.code === 'P2003') {
+    const message = 'Foreign key constraint failed';
+    error = { message, statusCode: 400 };
+  }
+
+  // JWT errors
   if (err.name === 'JsonWebTokenError') {
-    error = new AppError('Invalid token', 401, 'INVALID_TOKEN');
+    const message = 'Invalid token';
+    error = { message, statusCode: 401 };
   }
 
   if (err.name === 'TokenExpiredError') {
-    error = new AppError('Token expired', 401, 'TOKEN_EXPIRED');
+    const message = 'Token expired';
+    error = { message, statusCode: 401 };
   }
 
-  sendErrorResponse(error, req, res);
+  res.status(error.statusCode || 500).json({
+    success: false,
+    error: error.message || 'Server Error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+  });
 };
 
-const sendErrorResponse = (err, req, res) => {
-  const statusCode = err.statusCode || 500;
-  const code = err.code || 'INTERNAL_ERROR';
-
-  if (err.isOperational) {
-    res.status(statusCode).json({
-      success: false,
-      error: { code, message: err.message },
-    });
-  } else {
-    console.error('ERROR:', err);
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Something went wrong on the server',
-      },
-    });
-  }
-};
-
-const handleNotFound = (req, res, next) => {
-  const err = new AppError(
-    `The route ${req.originalUrl} does not exist on this server`,
-    404,
-    'ROUTE_NOT_FOUND'
-  );
-  next(err);
+const notFound = (req, res, next) => {
+  const error = new Error(`Not Found - ${req.originalUrl}`);
+  res.status(404);
+  next(error);
 };
 
 module.exports = {
-  AppError,
-  globalErrorHandler,
-  handleNotFound,
+  errorHandler,
+  notFound,
 };

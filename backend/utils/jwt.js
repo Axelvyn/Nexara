@@ -1,57 +1,50 @@
 const jwt = require('jsonwebtoken');
 
+// Generate JWT token
 const generateToken = payload => {
-  try {
-    const secret = process.env.JWT_SECRET;
-    const expiresIn = process.env.JWT_EXPIRES_IN || '15m';
-
-    if (!secret) {
-      throw new Error('JWT_SECRET environment variable is required');
-    }
-
-    return jwt.sign(payload, secret, { expiresIn });
-  } catch (error) {
-    throw new Error(`Token generation failed: ${error.message}`);
-  }
+  return jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  });
 };
 
+// Generate refresh token
+const generateRefreshToken = payload => {
+  return jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+    expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
+  });
+};
+
+// Verify JWT token
 const verifyToken = token => {
-  try {
-    const secret = process.env.JWT_SECRET;
-
-    if (!secret) {
-      throw new Error('JWT_SECRET environment variable is required');
-    }
-
-    return jwt.verify(token, secret);
-  } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      throw new Error('Token has expired');
-    } else if (error.name === 'JsonWebTokenError') {
-      throw new Error('Invalid token');
-    } else if (error.name === 'NotBeforeError') {
-      throw new Error('Token not active');
-    } else {
-      throw new Error(`Token verification failed: ${error.message}`);
-    }
-  }
+  return jwt.verify(token, process.env.JWT_SECRET);
 };
 
-const extractTokenFromHeader = authHeader => {
-  if (!authHeader) {
-    return null;
-  }
+// Verify refresh token
+const verifyRefreshToken = token => {
+  return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+};
 
-  const parts = authHeader.split(' ');
-  if (parts.length !== 2 || parts[0] !== 'Bearer') {
-    return null;
-  }
+// Decode token without verification (for debugging)
+const decodeToken = token => {
+  return jwt.decode(token);
+};
 
-  return parts[1];
+// Get token from request headers
+const getTokenFromHeader = req => {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    return req.headers.authorization.split(' ')[1];
+  }
+  return null;
 };
 
 module.exports = {
   generateToken,
+  generateRefreshToken,
   verifyToken,
-  extractTokenFromHeader,
+  verifyRefreshToken,
+  decodeToken,
+  getTokenFromHeader,
 };
