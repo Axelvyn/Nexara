@@ -77,9 +77,9 @@ model Issue {
   columnId    String
   column      Column   @relation(fields: [columnId], references: [id])
   assigneeId  String?
-  assignee    User?    @relation(fields: [assigneeId], references: [id])
+  assignee    User?    @relation("IssueAssignee", fields: [assigneeId], references: [id])
   reporterId  String
-  reporter    User     @relation(fields: [reporterId], references: [id])
+  reporter    User     @relation("IssueReporter", fields: [reporterId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
