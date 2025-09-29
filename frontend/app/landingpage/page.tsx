@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronLeft,
@@ -66,27 +66,30 @@ export default function LandingPage() {
     },
   ]
 
-  const handlePageChange = (newPage: number) => {
-    if (isTransitioning || newPage === currentPage) return
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      if (isTransitioning || newPage === currentPage) return
 
-    setIsTransitioning(true)
-    setCurrentPage(newPage)
+      setIsTransitioning(true)
+      setCurrentPage(newPage)
 
-    // Reset transition state after animation
-    setTimeout(() => setIsTransitioning(false), 500)
-  }
+      // Reset transition state after animation
+      setTimeout(() => setIsTransitioning(false), 500)
+    },
+    [isTransitioning, currentPage]
+  )
 
-  const nextPage = () => {
+  const nextPage = useCallback(() => {
     if (currentPage < pages.length - 1) {
       handlePageChange(currentPage + 1)
     }
-  }
+  }, [currentPage, pages.length, handlePageChange])
 
-  const prevPage = () => {
+  const prevPage = useCallback(() => {
     if (currentPage > 0) {
       handlePageChange(currentPage - 1)
     }
-  }
+  }, [currentPage, handlePageChange])
 
   // Keyboard navigation
 
@@ -110,7 +113,7 @@ export default function LandingPage() {
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [currentPage])
+  }, [currentPage, nextPage, prevPage])
 
   // Auto-advance (optional - can be disabled)
   useEffect(() => {
@@ -126,7 +129,7 @@ export default function LandingPage() {
     }, 8000) // 8 seconds per page
 
     return () => clearTimeout(timer)
-  }, [currentPage, isTransitioning])
+  }, [currentPage, isTransitioning, nextPage, pages.length, handlePageChange])
 
   const CurrentComponent = pages[currentPage].component
 
