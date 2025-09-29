@@ -6,8 +6,7 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-const { errorHandler } = require('./middleware/errorHandler');
-const { notFound } = require('./middleware/notFound');
+const { errorHandler, notFound } = require('./middleware/errorHandler');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -73,6 +72,23 @@ app.get('/health', (req, res) => {
     uptime: process.uptime(),
     environment: process.env.NODE_ENV,
     version: process.env.npm_package_version || '1.0.0',
+  });
+});
+
+// Root endpoint for deployment health checks
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: 'Nexara API Server',
+    status: 'running',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    endpoints: [
+      'GET /health - Health check',
+      'POST /api/auth/register - User registration',
+      'POST /api/auth/login - User login',
+      'GET /api/projects - Get projects',
+      'POST /api/projects - Create project',
+    ],
   });
 });
 

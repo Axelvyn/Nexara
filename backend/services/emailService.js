@@ -9,6 +9,16 @@ class EmailService {
 
   async initTransporter() {
     try {
+      // In production environments like Render, prioritize Ethereal Email to avoid SMTP timeouts
+      if (process.env.NODE_ENV === 'production' && !process.env.FORCE_GMAIL) {
+        console.log(
+          '📧 Production environment detected, using Ethereal Email for reliability...'
+        );
+        await this.createTestAccount();
+        this.isInitialized = true;
+        return;
+      }
+
       // Check if Gmail credentials are provided
       if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
         // Use Gmail with provided credentials
@@ -18,10 +28,19 @@ class EmailService {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASSWORD,
           },
+          // Add timeout settings to prevent hanging
+          connectionTimeout: 10000, // 10 seconds
+          greetingTimeout: 5000, // 5 seconds
+          socketTimeout: 10000, // 10 seconds
         });
 
-        // Test the connection
-        await this.transporter.verify();
+        // Test the connection with timeout
+        const testPromise = this.transporter.verify();
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Connection timeout')), 15000)
+        );
+
+        await Promise.race([testPromise, timeoutPromise]);
         console.log(
           '📧 Gmail transporter initialized and verified for:',
           process.env.EMAIL_USER
