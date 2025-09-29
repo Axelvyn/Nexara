@@ -69,6 +69,27 @@ curl -X POST http://localhost:5000/api/auth/logout \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
+### Forgot Password
+
+```bash
+curl -X POST http://localhost:5000/api/auth/forgot-password \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com"
+  }'
+```
+
+### Reset Password
+
+```bash
+curl -X POST http://localhost:5000/api/auth/reset-password \
+  -H "Content-Type: application/json" \
+  -d '{
+    "token": "RESET_TOKEN_FROM_EMAIL",
+    "newPassword": "NewSecurePassword123"
+  }'
+```
+
 ## 👤 User Management Endpoints
 
 ### Get user profile

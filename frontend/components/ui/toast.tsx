@@ -1,5 +1,5 @@
 'use client'
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useCallback } from 'react'
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -91,25 +91,7 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined)
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
 
-  const addToast = (toast: Omit<Toast, 'id'>) => {
-    const id = Math.random().toString(36).substr(2, 9)
-    const newToast: Toast = {
-      id,
-      duration: 5000, // Default 5 seconds
-      ...toast,
-    }
-
-    setToasts(prev => [...prev, newToast])
-
-    // Auto-remove toast after duration
-    if (newToast.duration !== Infinity) {
-      setTimeout(() => {
-        removeToast(id)
-      }, newToast.duration)
-    }
-  }
-
-  const removeToast = (id: string) => {
+  const removeToast = useCallback((id: string) => {
     setToasts(prev =>
       prev.map(toast =>
         toast.id === id ? { ...toast, isRemoving: true } : toast
@@ -120,11 +102,32 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setTimeout(() => {
       setToasts(prev => prev.filter(toast => toast.id !== id))
     }, 250)
-  }
+  }, [])
 
-  const clearToasts = () => {
+  const addToast = useCallback(
+    (toast: Omit<Toast, 'id'>) => {
+      const id = Math.random().toString(36).substr(2, 9)
+      const newToast: Toast = {
+        id,
+        duration: 5000, // Default 5 seconds
+        ...toast,
+      }
+
+      setToasts(prev => [...prev, newToast])
+
+      // Auto-remove toast after duration
+      if (newToast.duration !== Infinity) {
+        setTimeout(() => {
+          removeToast(id)
+        }, newToast.duration)
+      }
+    },
+    [removeToast]
+  )
+
+  const clearToasts = useCallback(() => {
     setToasts([])
-  }
+  }, [])
 
   return (
     <ToastContext.Provider

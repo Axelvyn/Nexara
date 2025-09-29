@@ -482,6 +482,133 @@ const resendOTP = async (req, res) => {
   }
 };
 
+// @desc    Request password reset
+// @route   POST /api/auth/forgot-password
+// @access  Public
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required',
+      });
+    }
+
+    // Find user by email
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      // Don't reveal if email exists or not for security
+      return res.json({
+        success: true,
+        message:
+          'If an account with that email exists, we sent a password reset link',
+      });
+    }
+
+    // Generate reset token
+    const crypto = require('crypto');
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    // Save reset token to database
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordResetToken: resetToken,
+        passwordResetExpiry: resetExpiry,
+      },
+    });
+
+    // TODO: Send reset email (implement email service)
+    console.log(`Password reset token for ${email}: ${resetToken}`);
+
+    res.json({
+      success: true,
+      message:
+        'If an account with that email exists, we sent a password reset link',
+      // Remove this in production - only for development
+      resetToken:
+        process.env.NODE_ENV === 'development' ? resetToken : undefined,
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error processing password reset request',
+    });
+  }
+};
+
+// @desc    Reset password with token
+// @route   POST /api/auth/reset-password
+// @access  Public
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token and new password are required',
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long',
+      });
+    }
+
+    // Find user with valid reset token
+    const user = await prisma.user.findFirst({
+      where: {
+        passwordResetToken: token,
+        passwordResetExpiry: {
+          gt: new Date(), // Token not expired
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset token',
+      });
+    }
+
+    // Hash new password
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    // Update password and clear reset token
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash: hashedPassword,
+        passwordResetToken: null,
+        passwordResetExpiry: null,
+      },
+    });
+
+    res.json({
+      success: true,
+      message: 'Password has been reset successfully',
+    });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error resetting password',
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -490,4 +617,6 @@ module.exports = {
   getMe,
   verifyEmail,
   resendOTP,
+  forgotPassword,
+  resetPassword,
 };

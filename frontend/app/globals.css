@@ -33,6 +33,12 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.623 0.214 259.815);
+
+  /* Dynamic theme variables */
+  --theme-primary: 6 182 212; /* cyan-500 RGB values */
+  --theme-primary-light: 34 211 238; /* cyan-400 RGB values */
+  --theme-secondary: 16 185 129; /* emerald-500 RGB values */
+  --theme-secondary-light: 52 211 153; /* emerald-400 RGB values */
 }
 
 .dark {
@@ -67,6 +73,105 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.488 0.243 264.376);
+}
+
+/* Theme-specific accent colors */
+.theme-cyan {
+  --theme-primary: 6 182 212;
+  --theme-primary-light: 34 211 238;
+  --theme-secondary: 16 185 129;
+  --theme-secondary-light: 52 211 153;
+}
+
+.theme-emerald {
+  --theme-primary: 16 185 129;
+  --theme-primary-light: 52 211 153;
+  --theme-secondary: 6 182 212;
+  --theme-secondary-light: 34 211 238;
+}
+
+.theme-purple {
+  --theme-primary: 147 51 234;
+  --theme-primary-light: 168 85 247;
+  --theme-secondary: 6 182 212;
+  --theme-secondary-light: 34 211 238;
+}
+
+.theme-blue {
+  --theme-primary: 59 130 246;
+  --theme-primary-light: 96 165 250;
+  --theme-secondary: 16 185 129;
+  --theme-secondary-light: 52 211 153;
+}
+
+/* Dynamic theme utilities */
+.bg-theme-primary {
+  background-color: rgb(var(--theme-primary));
+}
+
+.bg-theme-primary-light {
+  background-color: rgb(var(--theme-primary-light));
+}
+
+.bg-theme-secondary {
+  background-color: rgb(var(--theme-secondary));
+}
+
+.bg-theme-secondary-light {
+  background-color: rgb(var(--theme-secondary-light));
+}
+
+.text-theme-primary {
+  color: rgb(var(--theme-primary));
+}
+
+.text-theme-primary-light {
+  color: rgb(var(--theme-primary-light));
+}
+
+.text-theme-secondary {
+  color: rgb(var(--theme-secondary));
+}
+
+.text-theme-secondary-light {
+  color: rgb(var(--theme-secondary-light));
+}
+
+.border-theme-primary {
+  border-color: rgb(var(--theme-primary));
+}
+
+.border-theme-primary-light {
+  border-color: rgb(var(--theme-primary-light));
+}
+
+/* Dynamic gradient utilities */
+.bg-gradient-theme {
+  background: linear-gradient(
+    to right,
+    rgb(var(--theme-primary)),
+    rgb(var(--theme-secondary))
+  );
+}
+
+.bg-gradient-theme-to-r {
+  background: linear-gradient(
+    to right,
+    rgb(var(--theme-primary-light)),
+    rgb(var(--theme-secondary-light))
+  );
+}
+
+.text-gradient-theme {
+  background: linear-gradient(
+    to right,
+    rgb(var(--theme-primary-light)),
+    rgb(var(--theme-secondary-light)),
+    rgb(147 51 234)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Custom Tailwind configuration for FlowingMenu component */

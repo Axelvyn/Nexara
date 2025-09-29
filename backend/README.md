@@ -88,6 +88,12 @@ The API will be available at `http://localhost:5000`
 - `POST /api/auth/refresh` - Refresh JWT token
 - `GET /api/auth/me` - Get current user (protected)
 - `POST /api/auth/logout` - Logout user (protected)
+- `POST /api/auth/verify-email` - Verify email with OTP
+- `POST /api/auth/resend-otp` - Resend email verification OTP
+- `POST /api/auth/forgot-password` - Request password reset
+- `POST /api/auth/reset-password` - Reset password with token
+- `GET /api/auth/check-username/:username` - Check username availability
+- `GET /api/auth/check-email/:email` - Check email availability
 
 ### Users
 

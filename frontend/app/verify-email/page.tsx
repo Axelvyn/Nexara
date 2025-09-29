@@ -7,13 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+
 import { Mail, ArrowLeft, CheckCircle, Clock, RefreshCw } from 'lucide-react'
 import { apiService } from '@/lib/api'
 import { authManager } from '@/lib/auth'
@@ -123,88 +117,73 @@ function VerifyEmailContent() {
   }
 
   return (
-    <main className="min-h-screen bg-black relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-slate-900 via-emerald-900/20 to-black" />
-
-      {/* Animated Grid Pattern */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 opacity-40">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-gradient-to-r from-pink-500/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500" />
       </div>
 
-      {/* Floating Particles */}
-      <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-emerald-400 rounded-full opacity-60"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -100, 0],
-              opacity: [0.6, 0.2, 0.6],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-          />
-        ))}
+      {/* Grid Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]" />
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 flex min-h-screen items-center justify-center p-6">
+      <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          <Card className="bg-gradient-to-br from-slate-900/90 via-slate-800/90 to-slate-900/90 backdrop-blur-xl border-slate-700/50 shadow-2xl">
-            <CardHeader className="text-center space-y-4">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                className="mx-auto w-16 h-16 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl flex items-center justify-center"
-              >
-                <Mail className="w-8 h-8 text-white" />
-              </motion.div>
-              <div>
-                <CardTitle className="text-2xl font-bold text-white mb-2">
-                  Verify Your Email
-                </CardTitle>
-                <CardDescription className="text-slate-300">
-                  We&apos;ve sent a 6-digit verification code to{' '}
-                  <span className="text-emerald-400 font-medium">{email}</span>
-                </CardDescription>
-              </div>
-            </CardHeader>
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/80 via-slate-800/80 to-slate-900/80 backdrop-blur-xl border border-slate-700/50 shadow-2xl shadow-emerald-500/25">
+            {/* Background Glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-blue-500/10" />
 
-            <CardContent className="space-y-6">
-              <form onSubmit={handleVerify} className="space-y-4">
-                <div className="space-y-2">
+            <div className="relative z-10 p-8">
+              {/* Header */}
+              <div className="text-center space-y-6 mb-8">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+                  className="mx-auto w-20 h-20 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/25"
+                >
+                  <Mail className="w-10 h-10 text-white" />
+                </motion.div>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-3">
+                    Verify Your Email
+                  </h1>
+                  <p className="text-slate-300 leading-relaxed">
+                    We&apos;ve sent a 6-digit verification code to{' '}
+                    <span className="text-emerald-400 font-semibold">
+                      {email}
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <form onSubmit={handleVerify} className="space-y-6">
+                <div className="space-y-3">
                   <Label
                     htmlFor="otp"
-                    className="text-slate-300 text-sm font-medium"
+                    className="text-slate-300 text-lg font-medium"
                   >
                     Verification Code
                   </Label>
                   <Input
                     id="otp"
                     type="text"
-                    placeholder="Enter 6-digit code"
+                    placeholder="000000"
                     value={otp}
                     onChange={e => handleOtpInput(e.target.value)}
-                    className="text-center text-2xl font-mono tracking-widest bg-slate-800/50 border-slate-700 text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                    className="h-16 text-center text-3xl font-mono tracking-widest bg-slate-800/50 border-slate-700/50 text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl backdrop-blur-sm transition-all duration-200"
                     maxLength={6}
                     autoComplete="one-time-code"
                     required
                   />
-                  <p className="text-xs text-slate-400 text-center">
+                  <p className="text-sm text-slate-400 text-center">
                     Enter the 6-digit code from your email
                   </p>
                 </div>
@@ -212,10 +191,10 @@ function VerifyEmailContent() {
                 <Button
                   type="submit"
                   disabled={isLoading || otp.length !== 6}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="w-full h-14 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-black font-bold text-lg rounded-xl transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg shadow-emerald-500/25"
                 >
                   {isLoading ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <motion.div
                         animate={{ rotate: 360 }}
                         transition={{
@@ -223,13 +202,13 @@ function VerifyEmailContent() {
                           repeat: Infinity,
                           ease: 'linear',
                         }}
-                        className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                        className="w-5 h-5 border-2 border-black border-t-transparent rounded-full"
                       />
                       Verifying...
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" />
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5" />
                       Verify Email
                     </div>
                   )}
@@ -237,7 +216,7 @@ function VerifyEmailContent() {
               </form>
 
               {/* Resend Section */}
-              <div className="text-center space-y-3">
+              <div className="mt-8 text-center space-y-4">
                 <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
                   <Clock className="w-4 h-4" />
                   Didn&apos;t receive the code?
@@ -245,14 +224,18 @@ function VerifyEmailContent() {
 
                 {countdown > 0 ? (
                   <p className="text-sm text-slate-500">
-                    Resend available in {countdown} seconds
+                    Resend available in{' '}
+                    <span className="text-emerald-400 font-semibold">
+                      {countdown}
+                    </span>{' '}
+                    seconds
                   </p>
                 ) : (
                   <Button
                     variant="ghost"
                     onClick={handleResendOTP}
                     disabled={isResending}
-                    className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all duration-200"
+                    className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all duration-200 rounded-xl"
                   >
                     {isResending ? (
                       <div className="flex items-center gap-2">
@@ -263,62 +246,62 @@ function VerifyEmailContent() {
                             repeat: Infinity,
                             ease: 'linear',
                           }}
-                        >
-                          <RefreshCw className="w-4 h-4" />
-                        </motion.div>
+                          className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full"
+                        />
                         Sending...
                       </div>
                     ) : (
-                      'Resend Code'
+                      <div className="flex items-center gap-2">
+                        <RefreshCw className="w-4 h-4" />
+                        Resend Code
+                      </div>
                     )}
                   </Button>
                 )}
               </div>
 
-              {/* Back to Signup */}
-              <div className="text-center pt-4 border-t border-slate-700/50">
+              {/* Back to Login */}
+              <div className="mt-8 text-center">
                 <Link
-                  href="/signup"
-                  className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-emerald-400 transition-colors duration-200"
+                  href="/login"
+                  className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors duration-200"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  Back to Signup
+                  Back to Login
                 </Link>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+          {/* Additional Help */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-6 p-6 rounded-2xl bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm border border-slate-700/30"
+          >
+            <div className="text-center space-y-3">
+              <h3 className="text-slate-300 font-semibold">Need Help?</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Check your spam folder or try resending the code. If you
+                continue to have issues, please contact our support team.
+              </p>
+            </div>
+          </motion.div>
         </motion.div>
       </div>
-    </main>
-  )
-}
-
-// Loading component for Suspense fallback
-function VerifyEmailLoading() {
-  return (
-    <main className="min-h-screen bg-black relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-slate-900 via-emerald-900/20 to-black" />
-      <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-        <div className="w-full max-w-md">
-          <Card className="bg-slate-900/90 border-slate-700/50 backdrop-blur-sm">
-            <CardHeader className="text-center space-y-4">
-              <CardTitle className="text-2xl font-bold text-white mb-2">
-                Loading...
-              </CardTitle>
-              <CardDescription className="text-slate-300">
-                Please wait while we load the verification page.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-      </div>
-    </main>
+    </div>
   )
 }
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<VerifyEmailLoading />}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
       <VerifyEmailContent />
     </Suspense>
   )
