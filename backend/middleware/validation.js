@@ -46,7 +46,7 @@ const validateUserRegistration = [
     .withMessage('First name is required')
     .isLength({ min: 1, max: 50 })
     .withMessage('First name must be between 1 and 50 characters')
-    .matches(/^[a-zA-Z\s'-]+$/)
+    .matches(/^[\p{L}\s'-]+$/u)
     .withMessage(
       'First name can only contain letters, spaces, hyphens, and apostrophes'
     ),
@@ -55,7 +55,7 @@ const validateUserRegistration = [
     .withMessage('Last name is required')
     .isLength({ min: 1, max: 50 })
     .withMessage('Last name must be between 1 and 50 characters')
-    .matches(/^[a-zA-Z\s'-]+$/)
+    .matches(/^[\p{L}\s'-]+$/u)
     .withMessage(
       'Last name can only contain letters, spaces, hyphens, and apostrophes'
     ),
