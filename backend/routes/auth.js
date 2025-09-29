@@ -9,6 +9,8 @@ const {
   getMe,
   verifyEmail,
   resendOTP,
+  forgotPassword,
+  resetPassword,
 } = require('../controllers/authController');
 
 const { protect } = require('../middleware/auth');
@@ -136,6 +138,10 @@ router.post('/verify-email', verifyEmail);
 router.post('/resend-otp', resendOTP);
 router.get('/check-username/:username', checkUsername); // Public username check
 router.get('/check-email/:email', checkEmail); // Public email check
+
+// Password reset routes (public)
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 
 // Protected routes
 router.use(protect); // All routes below this middleware are protected

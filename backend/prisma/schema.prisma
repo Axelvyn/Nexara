@@ -17,6 +17,8 @@ model User {
   isEmailVerified Boolean @default(false) @map("is_email_verified")
   emailVerificationOtp String? @map("email_verification_otp")
   otpExpiresAt DateTime? @map("otp_expires_at")
+  passwordResetToken String? @map("password_reset_token")
+  passwordResetExpiry DateTime? @map("password_reset_expiry")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
   isActive     Boolean  @default(true) @map("is_active")

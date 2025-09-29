@@ -1,10 +1,11 @@
+import { useCallback } from 'react'
 import { useToast } from '@/components/ui/toast'
 
 export function useToastMessage() {
   const { addToast } = useToast()
 
-  const showToast = {
-    success: (title: string, message?: string) => {
+  const success = useCallback(
+    (title: string, message?: string) => {
       addToast({
         type: 'success',
         title,
@@ -12,8 +13,11 @@ export function useToastMessage() {
         duration: 4000,
       })
     },
+    [addToast]
+  )
 
-    error: (title: string, message?: string) => {
+  const error = useCallback(
+    (title: string, message?: string) => {
       addToast({
         type: 'error',
         title,
@@ -21,8 +25,11 @@ export function useToastMessage() {
         duration: 6000, // Errors stay longer
       })
     },
+    [addToast]
+  )
 
-    warning: (title: string, message?: string) => {
+  const warning = useCallback(
+    (title: string, message?: string) => {
       addToast({
         type: 'warning',
         title,
@@ -30,8 +37,11 @@ export function useToastMessage() {
         duration: 5000,
       })
     },
+    [addToast]
+  )
 
-    info: (title: string, message?: string) => {
+  const info = useCallback(
+    (title: string, message?: string) => {
       addToast({
         type: 'info',
         title,
@@ -39,9 +49,11 @@ export function useToastMessage() {
         duration: 4000,
       })
     },
+    [addToast]
+  )
 
-    // Custom toast with more options
-    custom: (
+  const custom = useCallback(
+    (
       type: 'success' | 'error' | 'warning' | 'info',
       title: string,
       message?: string,
@@ -54,9 +66,11 @@ export function useToastMessage() {
         duration: duration || 5000,
       })
     },
+    [addToast]
+  )
 
-    // Toast with action button
-    withAction: (
+  const withAction = useCallback(
+    (
       type: 'success' | 'error' | 'warning' | 'info',
       title: string,
       message: string,
@@ -74,7 +88,15 @@ export function useToastMessage() {
         },
       })
     },
-  }
+    [addToast]
+  )
 
-  return showToast
+  return {
+    success,
+    error,
+    warning,
+    info,
+    custom,
+    withAction,
+  }
 }

@@ -1,10 +1,13 @@
-export interface User {
+import { clearRecentProjects } from './recentProjects'
+import { clearNavigationHistory } from './navigationHistory'
+
+interface User {
   id: string
-  email: string
   username: string
-  firstName: string
-  lastName: string
-  createdAt: string
+  email: string
+  firstName?: string
+  lastName?: string
+  role?: string
 }
 
 export interface AuthState {
@@ -76,6 +79,10 @@ class AuthManager {
     this.removeToken()
     this.removeRefreshToken()
     this.removeUser()
+
+    // Clear user-specific localStorage data for security
+    clearRecentProjects()
+    clearNavigationHistory()
   }
 
   isAuthenticated(): boolean {

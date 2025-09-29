@@ -2,7 +2,9 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { LoadingProvider } from '@/components/providers/LoadingProvider'
+import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { ToastProvider } from '@/components/ui/toast'
+import { ThemeCustomizer } from '@/components/ui/theme-customizer'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -31,9 +33,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
-        <LoadingProvider>
-          <ToastProvider>{children}</ToastProvider>
-        </LoadingProvider>
+        <ThemeProvider defaultMode="dark" defaultAccentColor="cyan">
+          <LoadingProvider>
+            <ToastProvider>
+              {children}
+              <ThemeCustomizer />
+            </ToastProvider>
+          </LoadingProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

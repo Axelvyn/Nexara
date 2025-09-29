@@ -55,6 +55,57 @@ export interface ResendOTPRequest {
   email: string
 }
 
+export interface Project {
+  id: string
+  name: string
+  description?: string
+  ownerId: string
+  createdAt: string
+  updatedAt: string
+  owner: {
+    id: string
+    username: string
+    firstName: string
+    lastName: string
+  }
+  _count: {
+    members: number
+    boards: number
+  }
+  userRole?: string
+}
+
+export interface CreateProjectRequest {
+  name: string
+  description?: string
+}
+
+export interface UpdateProjectRequest {
+  name?: string
+  description?: string
+}
+
+export interface ProjectsResponse {
+  success: boolean
+  data: {
+    projects: Project[]
+    pagination: {
+      page: number
+      limit: number
+      total: number
+      pages: number
+    }
+  }
+}
+
+export interface ProjectResponse {
+  success: boolean
+  data: {
+    project: Project
+  }
+  message?: string
+}
+
 class ApiService {
   private baseUrl: string
 
@@ -166,6 +217,122 @@ class ApiService {
         body: JSON.stringify(data),
       }
     )
+  }
+
+  // Project Management Methods
+  async getProjects(params?: {
+    page?: number
+    limit?: number
+    search?: string
+  }): Promise<ProjectsResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    const searchParams = new URLSearchParams()
+    if (params?.page) searchParams.set('page', params.page.toString())
+    if (params?.limit) searchParams.set('limit', params.limit.toString())
+    if (params?.search) searchParams.set('search', params.search)
+
+    const url = `/projects${searchParams.toString() ? `?${searchParams.toString()}` : ''}`
+
+    return this.request<ProjectsResponse>(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  }
+
+  async getProject(projectId: string): Promise<ProjectResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<ProjectResponse>(`/projects/${projectId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  }
+
+  async createProject(data: CreateProjectRequest): Promise<ProjectResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<ProjectResponse>('/projects', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updateProject(
+    projectId: string,
+    data: UpdateProjectRequest
+  ): Promise<ProjectResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<ProjectResponse>(`/projects/${projectId}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteProject(
+    projectId: string
+  ): Promise<{ success: boolean; message: string }> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<{ success: boolean; message: string }>(
+      `/projects/${projectId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+  }
+
+  async getProjectStats(projectId: string): Promise<{
+    success: boolean
+    data: {
+      stats: {
+        totalBoards: number
+        totalColumns: number
+        projectCreated: string
+        lastUpdated: string
+      }
+    }
+  }> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request(`/projects/${projectId}/stats`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
   }
 }
 

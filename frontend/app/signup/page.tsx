@@ -8,13 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import {
   Eye,
   EyeOff,
   Mail,
@@ -429,33 +422,36 @@ export default function SignupPage() {
           transition={{ duration: 0.8, ease: 'easeOut' }}
           className="w-full max-w-md"
         >
-          <Card className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 border-slate-700/50 backdrop-blur-sm shadow-2xl shadow-emerald-500/25 overflow-hidden">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/70 to-slate-800/70 backdrop-blur-xl border border-slate-700/30 shadow-2xl shadow-emerald-500/25">
             {/* Animated Border */}
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/20 to-cyan-500/0 opacity-0 hover:opacity-100 transition-opacity duration-500"
+              className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 hover:opacity-100 transition-opacity duration-500"
               initial={{ x: '-100%' }}
               whileHover={{ x: '100%' }}
               transition={{ duration: 0.8, ease: 'easeInOut' }}
             />
 
-            <CardHeader className="text-center pb-6 relative z-10">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="w-16 h-16 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/25"
-              >
-                <Zap className="w-8 h-8 text-black" />
-              </motion.div>
-              <CardTitle className="text-2xl font-bold text-white mb-2">
-                Create your account
-              </CardTitle>
-              <CardDescription className="text-slate-300">
-                Join thousands of teams using Nexara
-              </CardDescription>
-            </CardHeader>
+            {/* Background Glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-cyan-500/5" />
 
-            <CardContent className="relative z-10">
+            <div className="relative z-10 p-8">
+              {/* Header Section */}
+              <div className="text-center mb-8">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="w-16 h-16 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/25"
+                >
+                  <Zap className="w-8 h-8 text-black" />
+                </motion.div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-3">
+                  Create your account
+                </h1>
+                <p className="text-slate-400">
+                  Join thousands of teams using Nexara
+                </p>
+              </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -784,8 +780,8 @@ export default function SignupPage() {
                   </p>
                 </div>
               </form>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
       </div>
     </main>
