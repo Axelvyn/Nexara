@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,7 +19,7 @@ import { apiService } from '@/lib/api'
 import { authManager } from '@/lib/auth'
 import { useToastMessage } from '@/hooks/useToastMessage'
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const [otp, setOtp] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isResending, setIsResending] = useState(false)
@@ -290,5 +290,36 @@ export default function VerifyEmailPage() {
         </motion.div>
       </div>
     </main>
+  )
+}
+
+// Loading component for Suspense fallback
+function VerifyEmailLoading() {
+  return (
+    <main className="min-h-screen bg-black relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-slate-900 via-emerald-900/20 to-black" />
+      <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+        <div className="w-full max-w-md">
+          <Card className="bg-slate-900/90 border-slate-700/50 backdrop-blur-sm">
+            <CardHeader className="text-center space-y-4">
+              <CardTitle className="text-2xl font-bold text-white mb-2">
+                Loading...
+              </CardTitle>
+              <CardDescription className="text-slate-300">
+                Please wait while we load the verification page.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<VerifyEmailLoading />}>
+      <VerifyEmailContent />
+    </Suspense>
   )
 }
