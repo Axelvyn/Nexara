@@ -1,25 +1,27 @@
-# AI-Powered Project Management Platform
+# Nexara - AI-Powered Proje## 🚀 Project Overview
 
-</div>
-
-<p align="center">## 🚀 Project Overview
-
-Nexara is a modern, AI-powered project management platform designed for development teams. Currently featuring:
+Nexara is a modern, AI-powered project management platform designed for development teams. Built with cutting-edge technologies and focused on developer experience.
 
 ### 🎯 **Current Features (Production Ready)**
-- **User Authentication** with JWT tokens and refresh token support
-- **Email Verification** with beautiful OTP emails and real-time validation
-- **User Registration** with comprehensive form validation and availability checking
-- **Secure Login/Logout** supporting both email and username authentication
-- **User Dashboard** with project management interface
-- **Real-time Validation** for usernames, emails, and password strength
-- **Professional Email Templates** for verification and welcome messages
+
+- **🔐 User Authentication** - JWT tokens with refresh token support
+- **📧 Email Verification** - Beautiful OTP emails with 6-digit codes and HTML templates
+- **👤 User Registration** - Real-time validation for usernames, emails, and passwords
+- **🔑 Secure Login/Logout** - Support for both email and username authentication
+- **📊 User Dashboard** - Protected routes and user profile management
+- **⚡ Real-time Validation** - Instant feedback for usernames, emails, and password strength
+- **🎨 Professional UI** - Modern dark theme with animated components
 
 ### 🔮 **Planned Features**
-- **Project Management** with Kanban boards and sprint planning
-- **AI Integration** with GPT-4 for intelligent task management
-- **Team Collaboration** with real-time updates and notifications
-- **Advanced Analytics** with performance insights and reportinge>
+
+- **📋 Project Management** - Kanban boards and sprint planning
+- **🤖 AI Integration** - GPT-4 for intelligent task management and automation
+- **👥 Team Collaboration** - Real-time updates and notifications
+- **📈 Advanced Analytics** - Performance insights and reporting
+- **🔗 Integrations** - GitHub, Slack, and other developer toolsent Platform
+
+<div align="center">
+  <picture>
     <source media="(prefers-color-scheme: dark)" srcset="public/assets/logos/logo-icon-for-dark-bg.svg" />
     <source media="(prefers-color-scheme: light)" srcset="public/assets/logos/logo-icon-for-light-bg.svg" />
     <img
@@ -27,59 +29,20 @@ Nexara is a modern, AI-powered project management platform designed for developm
       src="public/assets/logos/logo-icon-for-light-bg.svg"
       style="width: 200px; height: auto;" />
   </picture>
-</p>
+</div>
 
 <div align="center">
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Slack](https://img.shields.io/badge/slack-join%20community-blueviolet.svg)](https://join.slack.com/t/promptzy/shared_invite/zt-3acy22kkh-R~nMYTl7op_MF5UaLnwdsA)
 [![TypeScript](https://img.shields.io/badge/typescript-4.9+-blue.svg)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/next.js-13+-black.svg)](https://nextjs.org/)
-[![Automation Status](https://img.shields.io/badge/automation-fully%20active-green.svg)](#-automated-contribution-system)
+[![Next.js](https://img.shields.io/badge/next.js-15+-black.svg)](https://nextjs.org/)
+[![Build Status](https://img.shields.io/badge/build-passing-green.svg)](#)
 
-_Intelligent automation and AI-driven insights for modern development teams_
+_Modern project management platform with AI-driven insights for development teams_
 
 </div>
 
 ---
-
-## 🤖 Automated Contribution System
-
-**Welcome Contributors!** This repository features a comprehensive automation system that makes contributing effortless:
-
-### ✨ **What Happens Automatically:**
-
-- 🏷️ **Smart Labeling** - PRs get labeled by type, area, size, and priority
-- 👍 **Auto-Approval** - External PRs are automatically approved to run workflows
-- 🎯 **Quality Checks** - Automatic linting, testing, and build verification
-- 📊 **Contributor Tracking** - All contributions are tracked and rewarded
-- 🔄 **Workflow Execution** - All workflows run for all contributors immediately
-
-### 🎮 **Manual Commands Available:**
-
-- `/check` - Re-run all quality checks and workflows
-- `/rerun` - Re-run failed workflows and refresh approvals
-- `/label` - Re-trigger smart labeling system
-- Plus [15+ other commands](#available-commands) for advanced management
-
-### 📈 **For New Contributors:**
-
-1. **Fork the repository** and create your branch
-2. **Make your changes** - the system auto-detects the type and scope
-3. **Open a pull request** - automation kicks in immediately:
-   - ✅ PR gets automatically approved for workflow execution
-   - 🏷️ Smart labels applied (type/feature, area/frontend, size/M, etc.)
-   - 🧪 All quality checks run automatically (no waiting!)
-   - 📝 You're added to our contributor tracking system
-4. **Address any feedback** - use `/check` to re-run tests after fixes
-5. **Get merged** - maintainers can use `/merge` for quick integration
-
-### 🛠️ **Zero Configuration Required:**
-
-- **No setup needed** - automation works out of the box
-- **All PR types welcome** - features, fixes, docs, tests, refactors
-- **External forks supported** - same experience for everyone
-- **Graceful error handling** - clear feedback if something goes wrong
 
 
 ## 🚀 Project Overview
@@ -194,7 +157,8 @@ It’s built as a full **web application** — not just a browser extension — 
 
 ### Join Our Developer Community
 
-[![Slack Community](https://img.shields.io/badge/Slack-Join%20Community-4A154B?style=for-the-badge&logo=slack&logoColor=white)](https://join.slack.com/t/promptzy/shared_invite/zt-3acy22kkh-R~nMYTl7op_MF5UaLnwdsA)
+[![GitHub Discussions](https://img.shields.io/badge/GitHub-Discussions-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Axelvyn/Nexara/discussions)
+[![GitHub Issues](https://img.shields.io/badge/GitHub-Issues-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Axelvyn/Nexara/issues)
 
 Connect with fellow developers, get technical support, and stay updated on the latest features and releases.
 
@@ -202,7 +166,7 @@ Connect with fellow developers, get technical support, and stay updated on the l
 
 ---
 
-## � Development Roadmap
+## 🗓 Development Roadmap
 
 <div align="center">
 
@@ -215,13 +179,13 @@ gantt
     title Nexara Development Timeline
     dateFormat  MM-DD
     section Phase 1
-    Jira Clone Foundation    :active, p1, 08-01, 08-31
+    Authentication System   :done, p1, 08-01, 09-30
     section Phase 2
-    Automation & AI          :p2, 09-01, 09-30
+    Project Management      :active, p2, 10-01, 10-31
     section Phase 3
-    Advanced Features        :p3, 10-01, 10-31
+    AI Integration          :p3, 11-01, 11-30
     section Phase 4
-    Testing & Launch         :p4, 11-01, 11-30
+    Production Launch       :p4, 12-01, 12-31
 ```
 
 ### 🗓 **Phase 1: Authentication Foundation** _(✅ COMPLETED)_
@@ -327,7 +291,7 @@ EMAIL_PASSWORD="your-app-password"  # Gmail App Password, not regular password
 EMAIL_FROM="Nexara <noreply@nexara.com>"
 
 # Frontend URL
-FRONTEURL="http://localhost:3000"
+FRONTEND_URL="http://localhost:3000"
 ```
 
 #### 4. **Gmail App Password Setup** (for email verification)
@@ -560,13 +524,13 @@ Please read our [Code of Conduct](./CODE_OF_CONDUCT.md) to understand the expect
 
 ### 🌟 Our Amazing Contributors
 
-<a href="https://github.com/Promptzy/Zenjira/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Promptzy/Zenjira" alt="Contributors" />
+<a href="https://github.com/Axelvyn/Nexara/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Axelvyn/Nexara" alt="Contributors" />
 </a>
 
-_Can't see the contributors graph? [View all contributors on GitHub →](https://github.com/Promptzy/Zenjira/graphs/contributors)_
+_Can't see the contributors graph? [View all contributors on GitHub →](https://github.com/Axelvyn/Nexara/graphs/contributors)_
 
-[![Contributors](https://img.shields.io/github/contributors/Promptzy/Zenjira?style=for-the-badge&color=orange)](https://github.com/Promptzy/Zenjira/graphs/contributors)
+[![Contributors](https://img.shields.io/github/contributors/Axelvyn/Nexara?style=for-the-badge&color=orange)](https://github.com/Axelvyn/Nexara/graphs/contributors)
 
 </div>
 
