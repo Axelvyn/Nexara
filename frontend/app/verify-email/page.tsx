@@ -178,7 +178,7 @@ export default function VerifyEmailPage() {
                   Verify Your Email
                 </CardTitle>
                 <CardDescription className="text-slate-300">
-                  We've sent a 6-digit verification code to{' '}
+                  We&apos;ve sent a 6-digit verification code to{' '}
                   <span className="text-emerald-400 font-medium">{email}</span>
                 </CardDescription>
               </div>
@@ -240,7 +240,7 @@ export default function VerifyEmailPage() {
               <div className="text-center space-y-3">
                 <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
                   <Clock className="w-4 h-4" />
-                  Didn't receive the code?
+                  Didn&apos;t receive the code?
                 </div>
 
                 {countdown > 0 ? (
