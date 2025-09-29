@@ -22,7 +22,9 @@ const prisma = require('../config/database');
 // @access  Public (no authentication required)
 const checkUsername = async (req, res) => {
   try {
-    const { username } = req.params;
+    // Normalize input to lowercase for case-insensitive checks
+    const raw = req.params.username || '';
+    const username = raw.toLowerCase();
 
     // Basic validation
     if (!username || username.length < 3 || username.length > 30) {
@@ -33,18 +35,18 @@ const checkUsername = async (req, res) => {
       });
     }
 
-    // Check username format
-    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+    // Check username format (only lowercase letters, numbers, underscores, hyphens)
+    if (!/^[a-z0-9_-]+$/.test(username)) {
       return res.status(400).json({
         success: false,
         message:
-          'Username can only contain letters, numbers, underscores, and hyphens',
+          'Username can only contain lowercase letters, numbers, underscores, and hyphens',
         available: false,
       });
     }
 
-    // Check if username exists
-    const existingUser = await prisma.user.findUnique({
+    // Lookup using lowercase username
+    const existingUser = await prisma.user.findFirst({
       where: { username },
       select: { id: true },
     });
@@ -58,6 +60,11 @@ const checkUsername = async (req, res) => {
         ? 'Username is available'
         : 'Username is already taken',
       username,
+    });
+  } catch (err) {
+    // …error handling…
+  }
+};
     });
   } catch (error) {
     console.error('Check username error:', error);
