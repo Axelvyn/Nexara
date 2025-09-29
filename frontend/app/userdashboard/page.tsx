@@ -26,7 +26,7 @@ export default function UserDashboard() {
         }
 
         // Fetch user profile from API
-        const profileResponse = await apiService.getProfile(authState.token)
+        const profileResponse = await apiService.getProfile()
         setUserData({
           name:
             profileResponse.data.user.username ||
