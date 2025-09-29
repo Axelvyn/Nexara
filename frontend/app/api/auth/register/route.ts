@@ -102,9 +102,9 @@ export async function POST(request: Request) {
         username,
         firstName,
         lastName,
+        confirmPassword,
       }),
     })
-
     const data = await response.json()
 
     if (!response.ok) {
