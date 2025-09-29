@@ -16,7 +16,7 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
 
   // Always call the hook first, then handle errors in the render
   const themeContext = useTheme()
-  
+
   // If no theme context available, don't render the customizer
   if (!themeContext) {
     return null

@@ -321,8 +321,8 @@ export default function UserDashboard() {
                   No recent projects
                 </h3>
                 <p className="text-slate-400 mb-8 max-w-md mx-auto">
-                  You haven&apos;t viewed any projects recently. Visit a project to
-                  see it appear here
+                  You haven&apos;t viewed any projects recently. Visit a project
+                  to see it appear here
                 </p>
                 <Button
                   onClick={() => router.push('/projects')}
