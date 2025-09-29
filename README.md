@@ -2,8 +2,24 @@
 
 </div>
 
-<p align="center">
-  <picture>
+<p align="center">## 🚀 Project Overview
+
+Nexara is a modern, AI-powered project management platform designed for development teams. Currently featuring:
+
+### 🎯 **Current Features (Production Ready)**
+- **User Authentication** with JWT tokens and refresh token support
+- **Email Verification** with beautiful OTP emails and real-time validation
+- **User Registration** with comprehensive form validation and availability checking
+- **Secure Login/Logout** supporting both email and username authentication
+- **User Dashboard** with project management interface
+- **Real-time Validation** for usernames, emails, and password strength
+- **Professional Email Templates** for verification and welcome messages
+
+### 🔮 **Planned Features**
+- **Project Management** with Kanban boards and sprint planning
+- **AI Integration** with GPT-4 for intelligent task management
+- **Team Collaboration** with real-time updates and notifications
+- **Advanced Analytics** with performance insights and reportinge>
     <source media="(prefers-color-scheme: dark)" srcset="public/assets/logos/logo-icon-for-dark-bg.svg" />
     <source media="(prefers-color-scheme: light)" srcset="public/assets/logos/logo-icon-for-light-bg.svg" />
     <img
@@ -65,69 +81,6 @@ _Intelligent automation and AI-driven insights for modern development teams_
 - **External forks supported** - same experience for everyone
 - **Graceful error handling** - clear feedback if something goes wrong
 
----
-
-## 🤖 GitHub Bot Commands
-
-This repository includes a powerful GitHub bot that responds to slash commands in issues and pull requests:
-
-### Available Commands:
-
-- `/assign @username` - Assigns an issue or PR to the mentioned user
-- `/unassign @username` - Unassigns the mentioned user from an issue or PR
-- `/merge` - Merges a pull request and closes linked issues (restricted to authorized users)
-- `/approve [message]` - Approves a pull request with optional auto-merge
-- `/lgtm [message]` - Approves a pull request with "Looks Good To Me"
-- `/rerun` - Re-runs all failed workflows and approves waiting workflows for a PR
-- `/check` - Runs all workflows and checks for a PR (perfect for new contributors)
-- `/review @username` - Requests a review from the mentioned user
-- `/status` - Checks the status of a pull request and provides merge readiness assessment
-- `/bug` - Adds the "type: bug" label to the issue or PR
-- `/feature` - Adds the "type: feature" label to the issue or PR
-
-### How to Use:
-
-1. **In any issue or pull request**, post a comment with one of the slash commands above
-2. **The bot will react** with an emoji to show it received the command
-3. **The command will execute** and the bot will post a confirmation message
-4. **Check the Actions tab** if a command doesn't work as expected
-
-### Automated Features:
-
-- **Pull requests are automatically labeled** based on changed files
-- **Size labels** (XS, S, M, L, XL) are added based on the number of lines changed
-- **Component labels** help identify which part of the codebase is affected
-- **Technology labels** help identify the languages and frameworks involved
-- **Linked issues are automatically closed** when PRs are merged via bot commands
-- **Workflows run automatically** for all contributors without waiting for approval
-- **First-time contributors** can use `/check` command to run all workflows manually
-- **Manual override** available with `/rerun` and `/check` commands for any PR
-
-### Workflow Automation:
-
-- **All contributors** get automatic workflow approval and execution
-- **Documentation changes** (.md, docs/, README files) run automatically
-- **All PR types** get automatic approval - welcoming to new contributors
-- **Manual override** available with `/rerun` and `/check` commands for any PR
-- **Zero-config setup** - works out of the box for all contributions
-
-### Issue Linking:
-
-When using `/merge` or `/approve` commands, the bot automatically:
-
-- Searches PR title, body, and commit messages for issue references
-- Closes linked issues using patterns like "Closes #123", "Fixes #456", "Resolves #789"
-- Posts a confirmation comment on both the PR and closed issues
-
-### Security:
-
-- The `/merge` command is restricted to authorized users only
-- All workflow changes require approval from repository maintainers
-- Commands provide clear feedback on success or failure
-
-### Status: ✅ **ACTIVE** - Bot is configured and ready to use!
-
----
 
 ## 🚀 Project Overview
 
@@ -144,22 +97,38 @@ It’s built as a full **web application** — not just a browser extension — 
 
 ## ✨ Features
 
-### Core Features
+### 🔐 **Authentication & Security**
 
-- **Automation Designer**: Use n8n's drag-and-drop editor to automate Jira events like task transitions or sending Slack notifications.
-- **AI Sprint Planner**: GPT‑4 helps generate sprints based on team capacity and priorities.
-- **Smart Ticket Summaries**: Instantly summarize long issue descriptions with AI.
-- **ChatOps Bot**: Use Slack or Microsoft Teams to ask things like "What are today's blockers?"
-- **Developer Load Balancer**: Distribute tasks more evenly to avoid burnout.
+- **🔑 Secure Registration**: Complete user registration with real-time validation
+- **📧 Email Verification**: Beautiful HTML emails with 6-digit OTP codes
+- **🛡️ JWT Authentication**: Secure token-based auth with refresh token support
+- **👤 Flexible Login**: Support for both email and username authentication
+- **🔒 Protected Routes**: Secure dashboard and user-specific content
+- **🔄 Real-time Validation**: Instant feedback for usernames, emails, and passwords
 
-### Advanced Features
+### 📧 **Email System**
 
-- **Semantic Search**: Use Hugging Face models to search Jira issues based on meaning, not just keywords.
-- **AI Test Case Generator**: Turn bug reports into suggested test cases.
-- **Retrospective Insights**: Get reports on what worked and what didn’t after every sprint.
-- **Gantt and Calendar Views**: Visual tools to see due dates, timelines, and sprint plans.
-- **Cross-Project Heatmap**: Identify bottlenecks and dependencies between multiple projects.
-- **Auto Release Notes**: Generate release notes from closed issues and merged pull requests.
+- **🎨 Beautiful Templates**: Professional HTML email designs
+- **⏱️ Smart OTP**: 6-digit codes with 10-minute expiration
+- **🔄 Resend Feature**: Rate-limited OTP resending with countdown
+- **🎯 Development Mode**: Ethereal Email integration for testing
+- **📬 Welcome Emails**: Automated welcome messages after verification
+
+### 🎨 **User Experience**
+
+- **⚡ Real-time Feedback**: Instant username/email availability checking
+- **🎯 Form Validation**: Comprehensive client and server-side validation
+- **🌟 Animated UI**: Smooth transitions and micro-interactions
+- **📱 Responsive Design**: Works perfectly on all device sizes
+- **🎭 Dark Theme**: Modern dark interface with gradient accents
+
+### 🛠 **Developer Experience**
+
+- **🔧 Type Safety**: Full TypeScript implementation
+- **🗄️ Database ORM**: Prisma for type-safe database queries
+- **📝 API Documentation**: Well-documented REST endpoints
+- **🧪 Error Handling**: Comprehensive error management
+- **🔍 Logging**: Detailed logging for debugging and monitoring
 
 ---
 
@@ -183,11 +152,13 @@ It’s built as a full **web application** — not just a browser extension — 
 
 | Technology            | Purpose                 | Implementation   |
 | --------------------- | ----------------------- | ---------------- |
-| **Node.js + Express** | Runtime & API Framework | REST/GraphQL     |
-| **PostgreSQL**        | Primary Database        | 14+              |
-| **Redis**             | Caching & Sessions      | 7+               |
-| **BullMQ**            | Job Queue System        | Latest           |
-| **JWT + OAuth2**      | Authentication          | Jira Integration |
+| **Node.js + Express** | Runtime & API Framework | REST API         |
+| **PostgreSQL**        | Primary Database        | 14+ via Prisma  |
+| **Prisma ORM**        | Database Management     | Type-safe queries|
+| **JWT + Refresh**     | Authentication          | Secure tokens    |
+| **Nodemailer**        | Email Service           | SMTP/Gmail       |
+| **bcrypt**            | Password Hashing        | Secure encryption|
+| **Express Validator** | Input Validation        | Server-side      |
 
 </details>
 
@@ -253,29 +224,33 @@ gantt
     Testing & Launch         :p4, 11-01, 11-30
 ```
 
-### 🗓 **Phase 1: Jira Clone Foundation** _(Month 1)_
+### 🗓 **Phase 1: Authentication Foundation** _(✅ COMPLETED)_
 
-- [ ] **Core Jira Clone** - Build basic project management features (issues, boards, sprints)
-- [ ] **User Management** - Authentication, user roles, and permissions
+- [x] **User Authentication System** - JWT tokens with refresh token support
+- [x] **Email Verification** - Beautiful OTP emails with 6-digit codes and HTML templates
+- [x] **User Registration** - Real-time validation for usernames, emails, and passwords
+- [x] **Secure Login/Logout** - Support for both email and username authentication
+- [x] **User Dashboard** - Protected routes and user profile management
+- [x] **Database Schema** - PostgreSQL with Prisma ORM for type-safe queries
+- [x] **API Infrastructure** - Express.js with comprehensive validation and error handling
+
+### 🔧 **Phase 2: Project Management Core** _(🚧 IN PROGRESS)_
+
+- [ ] **Project Creation** - Create and manage multiple projects per user
 - [ ] **Issue Management** - Create, edit, assign, and track issues with status workflows
 - [ ] **Project Boards** - Kanban boards and basic sprint functionality
-- [ ] **Infrastructure Setup** - PostgreSQL, Redis, and development environment
+- [ ] **Team Management** - Invite users to projects with role-based permissions
+- [ ] **Project Settings** - Configure project preferences and visibility
 
-### 🔧 **Phase 2: Automation & Intelligence** _(Month 2)_
+### 🤖 **Phase 3: Advanced Features** _(📋 PLANNED)_
 
-- [ ] **Automation Engine** - n8n integration and workflow builder for custom automations
-- [ ] **External Jira Integration** - OAuth2 connection to existing Jira instances for migration/sync
-- [ ] **AI Features** - GPT-4 integration for intelligent summaries and planning assistance
-- [ ] **ChatOps Bot** - Slack/Teams integration for team communication and notifications
-
-### 🤖 **Phase 3: Advanced Features** _(Month 3)_
-
-- [ ] **Semantic Search** - Hugging Face model integration for intelligent issue discovery
-- [ ] **VCS Integration** - GitHub/GitLab pull request insights and code-to-issue linking
+- [ ] **AI Integration** - GPT-4 integration for intelligent summaries and planning assistance
+- [ ] **Automation Engine** - Workflow builder for custom automations
+- [ ] **External Integrations** - GitHub/GitLab pull request insights and code-to-issue linking
+- [ ] **Real-time Collaboration** - WebSocket integration for live updates
 - [ ] **Advanced Analytics** - Sprint retrospectives and team performance metrics
-- [ ] **Visual Dashboards** - Gantt charts, burndown charts, and cross-project heatmaps
 
-### 🚀 **Phase 4: Production Ready** _(Month 4)_
+### 🚀 **Phase 4: Production Ready** _(📋 PLANNED)_
 
 - [ ] **Quality Assurance** - Comprehensive testing suite (Jest, Cypress)
 - [ ] **Performance Optimization** - Load testing and optimization
@@ -289,35 +264,107 @@ gantt
 ### Prerequisites
 
 - **Node.js** 18+ and **npm** (or **yarn**)
+- **PostgreSQL** 14+ database server
 - **Git** for version control
+- **Gmail account** (for email verification) or SMTP server
 
-### Installation & Setup
+### 🚀 Complete Setup Guide
 
-1. **Clone the repository**
+#### 1. **Clone and Install**
 
-   ```bash
-   git clone https://github.com/your-org/Nexara.git
-   cd Nexara
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/Axelvyn/Nexara.git
+cd Nexara
 
-2. **Install dependencies**
+# Install frontend dependencies
+cd frontend
+npm install
 
-   ```bash
-   # Install all dependencies (root, frontend, and backend)
-   npm run install:all
+# Install backend dependencies
+cd ../backend
+npm install
+```
 
-   # Or install individually:
-   # Frontend: cd frontend && npm install
-   # Backend: cd backend && npm install
-   ```
+#### 2. **Database Setup**
 
-3. **Environment setup**
-   ```bash
-   # Copy environment file and configure
-   cd backend
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
+```bash
+# Create PostgreSQL database
+psql -U postgres
+CREATE DATABASE nexara_db;
+\q
+
+# Or use your preferred database management tool
+```
+
+#### 3. **Environment Configuration**
+
+```bash
+# Copy environment template
+cd backend
+cp .env.example .env
+```
+
+**Edit `.env` file with your configuration:**
+
+```env
+# Database Configuration
+DATABASE_URL="postgresql://username:password@localhost:5432/nexara_db?schema=public"
+
+# JWT Configuration (generate strong secrets)
+JWT_SECRET="your-super-secret-jwt-key-here-min-32-chars"
+JWT_EXPIRES_IN="7d"
+JWT_REFRESH_SECRET="your-super-secret-refresh-key-here-min-32-chars"
+JWT_REFRESH_EXPIRES_IN="30d"
+
+# Server Configuration
+PORT=5000
+NODE_ENV="development"
+
+# Email Configuration (Gmail)
+EMAIL_USER="your-email@gmail.com"
+EMAIL_PASSWORD="your-app-password"  # Gmail App Password, not regular password
+EMAIL_FROM="Nexara <noreply@nexara.com>"
+
+# Frontend URL
+FRONTEURL="http://localhost:3000"
+```
+
+#### 4. **Gmail App Password Setup** (for email verification)
+
+1. Go to [Google Account Settings](https://myaccount.google.com/)
+2. Enable **2-Factor Authentication** if not already enabled
+3. Go to **Security** → **App passwords**
+4. Generate an app password for "Mail"
+5. Use this password in `EMAIL_PASSWORD` (not your regular Gmail password)
+
+#### 5. **Database Migration**
+
+```bash
+# Push database schema
+cd backend
+npx prisma db push
+
+# Generate Prisma client
+npx prisma generate
+
+# Optional: Seed database with test data
+npm run db:seed
+```
+
+#### 6. **Start Development Servers**
+
+```bash
+# Terminal 1: Start backend (from backend directory)
+cd backend
+npm run dev
+# Backend runs on http://localhost:5000
+
+# Terminal 2: Start frontend (from frontend directory)
+cd frontend
+npm run dev
+# Frontend runs on http://localhost:3000
+```
 
 ### Development Commands
 
@@ -389,20 +436,117 @@ npm run format
 npm run format:check
 ```
 
-### API Endpoints
+### 🔌 API Endpoints
 
+#### **Authentication**
 | Endpoint                    | Method | Description                              |
 | --------------------------- | ------ | ---------------------------------------- |
 | `/health`                   | GET    | Server health check                      |
-| `/api/jira/projects`        | GET    | List Jira projects _(coming soon)_       |
-| `/api/automation/workflows` | GET    | Automation workflows _(coming soon)_     |
-| `/api/ai/summarize`         | POST   | AI-powered summarization _(coming soon)_ |
+| `/api/auth/register`        | POST   | User registration with email verification|
+| `/api/auth/login`           | POST   | User login (email or username)          |
+| `/api/auth/verify-email`    | POST   | Verify email with OTP code              |
+| `/api/auth/resend-otp`      | POST   | Resend verification code                 |
+| `/api/auth/me`              | GET    | Get current user profile (protected)    |
+| `/api/auth/logout`          | POST   | User logout (protected)                  |
+| `/api/auth/refresh`         | POST   | Refresh JWT token                        |
+
+#### **Validation**
+| Endpoint                         | Method | Description                         |
+| -------------------------------- | ------ | ----------------------------------- |
+| `/api/auth/check-username/:username` | GET    | Check username availability         |
+| `/api/auth/check-email/:email`      | GET    | Check email availability            |
+
+#### **Coming Soon**
+| Endpoint                    | Method | Description                              |
+| --------------------------- | ------ | ---------------------------------------- |
+| `/api/projects`             | GET    | List user projects                       |
+| `/api/projects`             | POST   | Create new project                       |
+| `/api/issues`               | GET    | List project issues                      |
+| `/api/boards`               | GET    | List project boards                      |
 
 ### Development URLs
 
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:5000
 - **API Health Check**: http://localhost:5000/health
+
+### 🧪 Testing the Application
+
+#### **1. Test User Registration Flow**
+
+1. Visit http://localhost:3000/signup
+2. Fill out the registration form:
+   - Real-time username availability checking
+   - Real-time email availability checking
+   - Password strength validation with visual feedback
+3. Submit form → Check your email for verification code
+4. Visit verification link or enter OTP code
+5. Successful verification → Redirected to dashboard
+
+#### **2. Test Email Verification**
+
+- **Development Mode**: Check console for Ethereal Email preview links
+- **Gmail Mode**: Check your Gmail inbox for beautiful verification emails
+- **Test OTP**: 6-digit codes expire in 10 minutes
+- **Resend Feature**: 60-second cooldown between resends
+
+#### **3. Test Login Flow**
+
+1. Visit http://localhost:3000/login
+2. Login with email or username
+3. Unverified users → Redirected to email verification
+4. Verified users → Redirected to dashboard
+
+### 🔧 Troubleshooting
+
+#### **Common Issues**
+
+**Database Connection Error:**
+```bash
+# Check PostgreSQL is running
+sudo service postgresql status
+
+# Restart PostgreSQL if needed
+sudo service postgresql restart
+
+# Verify database exists
+psql -U postgres -l
+```
+
+**Email Not Sending:**
+```bash
+# Check Gmail App Password is correct
+# Verify 2FA is enabled on Google Account
+# Check .env EMAIL_* variables
+
+# Test email configuration
+node -e "console.log(process.env.EMAIL_USER)"
+```
+
+**Prisma Client Issues:**
+```bash
+# Regenerate Prisma client
+cd backend
+npx prisma generate
+
+# Reset database if needed
+npx prisma db push --force-reset
+```
+
+**Frontend Build Errors:**
+```bash
+# Clear Next.js cache
+cd frontend
+rm -rf .next
+npm run build
+```
+
+#### **Development Tips**
+
+- **View Emails in Development**: Check console for Ethereal Email preview URLs
+- **Database GUI**: Use `npx prisma studio` to view/edit database
+- **API Testing**: Use Postman or curl to test endpoints
+- **Logs**: Check terminal output for detailed error messages
 
 ---
 ## 📜 Code of Conduct
@@ -413,21 +557,6 @@ Please read our [Code of Conduct](./CODE_OF_CONDUCT.md) to understand the expect
 
 📜 Please review our [Community Guidelines](./COMMUNITY_GUIDELINES.md) before contributing.
 
-## 👥 Contributors
-
-We welcome and appreciate all contributions! Our automated contribution tracking system rewards merged PRs based on difficulty:
-
-> **Note:** The scoring system applies only to GSSOC contributors.
-
-🟢 **Level 1** (4 points) - Bug fixes, documentation, minor improvements  
-🟡 **Level 2** (7 points) - Features, refactoring, moderate complexity  
-🔴 **Level 3** (10 points) - Complex features, architecture changes
-
-See the current leaderboard and detailed contribution stats in [CONTRIBUTORS.md](./CONTRIBUTORS.md).
-
-📚 Learn more about our contribution tracking system in [docs/CONTRIBUTION_TRACKING.md](./docs/CONTRIBUTION_TRACKING.md).
-
-<div align="center">
 
 ### 🌟 Our Amazing Contributors
 

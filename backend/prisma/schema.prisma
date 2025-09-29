@@ -10,8 +10,13 @@ datasource db {
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
-  username     String?  @unique
+  username     String   @unique
+  firstName    String   @map("first_name")
+  lastName     String   @map("last_name")
   passwordHash String   @map("password_hash")
+  isEmailVerified Boolean @default(false) @map("is_email_verified")
+  emailVerificationOtp String? @map("email_verification_otp")
+  otpExpiresAt DateTime? @map("otp_expires_at")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
   isActive     Boolean  @default(true) @map("is_active")

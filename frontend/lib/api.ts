@@ -1,5 +1,6 @@
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+import { authManager } from './auth'
+
+const API_BASE_URL = '/api' // Use Next.js API routes
 
 export interface LoginRequest {
   email: string
@@ -7,9 +8,12 @@ export interface LoginRequest {
 }
 
 export interface SignupRequest {
+  firstName: string
+  lastName: string
+  username: string
   email: string
   password: string
-  username?: string
+  confirmPassword: string
 }
 
 export interface AuthResponse {
@@ -17,38 +21,38 @@ export interface AuthResponse {
   message: string
   data: {
     token: string
+    refreshToken: string
     user: {
       id: string
       email: string
-      username?: string
+      username: string
+      firstName: string
+      lastName: string
       createdAt: string
-    }
-  }
-}
-
-export interface SignupResponse {
-  success: boolean
-  message: string
-  data: {
-    user: {
-      id: string
-      email: string
-      username?: string
-      created_at: string
     }
   }
 }
 
 export interface ApiError {
   success: false
-  error: {
-    code: string
-    message: string
-    details?: Array<{
-      field: string
-      message: string
-    }>
-  }
+  message: string
+}
+
+export interface AvailabilityResponse {
+  success: boolean
+  available: boolean
+  message: string
+  username?: string
+  email?: string
+}
+
+export interface VerifyEmailRequest {
+  email: string
+  otp: string
+}
+
+export interface ResendOTPRequest {
+  email: string
 }
 
 class ApiService {
@@ -77,7 +81,7 @@ class ApiService {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error?.message || 'An error occurred')
+        throw new Error(data.message || 'An error occurred')
       }
 
       return data
@@ -96,20 +100,72 @@ class ApiService {
     })
   }
 
-  async signup(userData: SignupRequest): Promise<SignupResponse> {
-    return this.request<SignupResponse>('/auth/signup', {
+  async signup(userData: SignupRequest): Promise<AuthResponse> {
+    return this.request<AuthResponse>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
     })
   }
 
-  async getProfile(token: string): Promise<any> {
-    return this.request('/auth/profile', {
+  async logout(): Promise<{ success: boolean; message: string }> {
+    const token = authManager.getToken()
+    return this.request('/auth/logout', {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+  }
+
+  async getProfile(): Promise<any> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request('/auth/me', {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
+  }
+
+  async checkEmailAvailability(email: string): Promise<AvailabilityResponse> {
+    return this.request<AvailabilityResponse>(
+      `/auth/check-email/${encodeURIComponent(email)}`,
+      {
+        method: 'GET',
+      }
+    )
+  }
+
+  async checkUsernameAvailability(
+    username: string
+  ): Promise<AvailabilityResponse> {
+    return this.request<AvailabilityResponse>(
+      `/auth/check-username/${encodeURIComponent(username)}`,
+      {
+        method: 'GET',
+      }
+    )
+  }
+
+  async verifyEmail(data: VerifyEmailRequest): Promise<AuthResponse> {
+    return this.request<AuthResponse>('/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async resendOTP(
+    data: ResendOTPRequest
+  ): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(
+      '/auth/resend-otp',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }
+    )
   }
 }
 
