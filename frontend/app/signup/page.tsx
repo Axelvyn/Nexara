@@ -56,6 +56,15 @@ export default function SignupPage() {
     isAvailable: null,
     message: '',
   })
+  const [emailStatus, setEmailStatus] = useState<{
+    isChecking: boolean
+    isAvailable: boolean | null
+    message: string
+  }>({
+    isChecking: false,
+    isAvailable: null,
+    message: '',
+  })
   const router = useRouter()
   const toast = useToastMessage()
 
@@ -112,6 +121,50 @@ export default function SignupPage() {
         isChecking: false,
         isAvailable: false,
         message: 'Error checking username availability',
+      })
+    }
+  }
+
+  // Email availability check with debouncing
+  const checkEmailAvailability = async (email: string) => {
+    if (!email) {
+      setEmailStatus({ isChecking: false, isAvailable: null, message: '' })
+      return
+    }
+
+    // Basic format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setEmailStatus({
+        isChecking: false,
+        isAvailable: false,
+        message: 'Please provide a valid email address',
+      })
+      return
+    }
+
+    setEmailStatus({
+      isChecking: true,
+      isAvailable: null,
+      message: 'Checking availability...',
+    })
+
+    try {
+      const response = await fetch(
+        `/api/auth/check-email/${encodeURIComponent(email)}`
+      )
+      const data = await response.json()
+
+      setEmailStatus({
+        isChecking: false,
+        isAvailable: data.available,
+        message: data.message,
+      })
+    } catch (error) {
+      setEmailStatus({
+        isChecking: false,
+        isAvailable: false,
+        message: 'Error checking email availability',
       })
     }
   }
@@ -176,6 +229,26 @@ export default function SignupPage() {
       return
     }
 
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.email)) {
+      toast.error('Error', 'Please provide a valid email address')
+      return
+    }
+
+    if (emailStatus.isAvailable === false) {
+      toast.error(
+        'Error',
+        'Email is already registered. Please use a different email or try logging in.'
+      )
+      return
+    }
+
+    if (emailStatus.isChecking) {
+      toast.error('Error', 'Please wait while we check email availability')
+      return
+    }
+
     if (!agreedToTerms) {
       toast.error('Error', 'Please agree to the terms and conditions')
       return
@@ -203,17 +276,28 @@ export default function SignupPage() {
       }
 
       if (data.success && data.data) {
-        // Store authentication data
-        authManager.login(
-          data.data.token,
-          data.data.user,
-          data.data.refreshToken
-        )
+        if (data.data.requiresEmailVerification) {
+          // User needs to verify email first
+          toast.success(
+            'Account Created!',
+            'Please check your email for verification code'
+          )
 
-        toast.success('Account Created', 'Welcome to Nexara!')
+          // Redirect to email verification page
+          router.push(
+            `/verify-email?email=${encodeURIComponent(formData.email)}`
+          )
+        } else {
+          // Old flow for backward compatibility (if email verification is disabled)
+          authManager.login(
+            data.data.token,
+            data.data.user,
+            data.data.refreshToken
+          )
 
-        // Redirect to dashboard
-        router.push('/userdashboard')
+          toast.success('Account Created', 'Welcome to Nexara!')
+          router.push('/userdashboard')
+        }
       } else {
         toast.error('Registration Failed', 'Invalid response from server')
       }
@@ -244,6 +328,21 @@ export default function SignupPage() {
       if (typeof window !== 'undefined') {
         ;(window as any).usernameTimeout = setTimeout(() => {
           checkUsernameAvailability(value)
+        }, 500) // 500ms delay
+      }
+    }
+
+    // Check email availability with debouncing
+    if (field === 'email') {
+      // Clear previous timeout
+      if (typeof window !== 'undefined') {
+        clearTimeout((window as any).emailTimeout)
+      }
+
+      // Set new timeout for debounced checking
+      if (typeof window !== 'undefined') {
+        ;(window as any).emailTimeout = setTimeout(() => {
+          checkEmailAvailability(value)
         }, 500) // 500ms delay
       }
     }
@@ -485,6 +584,19 @@ export default function SignupPage() {
                       required
                     />
                   </div>
+                  {emailStatus.message && (
+                    <p
+                      className={`text-xs mt-1 ${
+                        emailStatus.isAvailable === true
+                          ? 'text-emerald-400'
+                          : emailStatus.isAvailable === false
+                            ? 'text-red-400'
+                            : 'text-slate-400'
+                      }`}
+                    >
+                      {emailStatus.message}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label

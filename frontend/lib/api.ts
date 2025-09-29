@@ -38,6 +38,23 @@ export interface ApiError {
   message: string
 }
 
+export interface AvailabilityResponse {
+  success: boolean
+  available: boolean
+  message: string
+  username?: string
+  email?: string
+}
+
+export interface VerifyEmailRequest {
+  email: string
+  otp: string
+}
+
+export interface ResendOTPRequest {
+  email: string
+}
+
 class ApiService {
   private baseUrl: string
 
@@ -110,6 +127,45 @@ class ApiService {
         Authorization: `Bearer ${token}`,
       },
     })
+  }
+
+  async checkEmailAvailability(email: string): Promise<AvailabilityResponse> {
+    return this.request<AvailabilityResponse>(
+      `/auth/check-email/${encodeURIComponent(email)}`,
+      {
+        method: 'GET',
+      }
+    )
+  }
+
+  async checkUsernameAvailability(
+    username: string
+  ): Promise<AvailabilityResponse> {
+    return this.request<AvailabilityResponse>(
+      `/auth/check-username/${encodeURIComponent(username)}`,
+      {
+        method: 'GET',
+      }
+    )
+  }
+
+  async verifyEmail(data: VerifyEmailRequest): Promise<AuthResponse> {
+    return this.request<AuthResponse>('/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async resendOTP(
+    data: ResendOTPRequest
+  ): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(
+      '/auth/resend-otp',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }
+    )
   }
 }
 
