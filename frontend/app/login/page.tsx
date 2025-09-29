@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,16 +15,60 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Zap } from 'lucide-react'
+import { authManager } from '@/lib/auth'
+import { useToastMessage } from '@/hooks/useToastMessage'
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+  const toast = useToastMessage()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle login logic here
-    console.log('Login attempt:', { email, password })
+    
+    if (!email || !password) {
+      toast.error('Error', 'Please fill in all fields')
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        toast.error('Login Failed', data.message || 'Invalid credentials')
+        return
+      }
+
+      if (data.success && data.data) {
+        // Store authentication data
+        authManager.login(data.data.token, data.data.user, data.data.refreshToken)
+        
+        toast.success('Login Successful', 'Welcome back!')
+        
+        // Redirect to dashboard
+        router.push('/userdashboard')
+      } else {
+        toast.error('Login Failed', 'Invalid response from server')
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      toast.error('Login Failed', 'Network error. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -140,14 +185,14 @@ export default function LoginPage() {
                     htmlFor="email"
                     className="text-slate-300 text-sm font-medium"
                   >
-                    Email address
+                    Email or Username
                   </Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
                       id="email"
-                      type="email"
-                      placeholder="Enter your email"
+                      type="text"
+                      placeholder="Enter your email or username"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       className="pl-10 bg-slate-800/50 border-slate-700 text-white placeholder-slate-400 focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-200"
@@ -218,10 +263,11 @@ export default function LoginPage() {
                 >
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-600 hover:to-emerald-600 text-black font-semibold py-3 shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300"
+                    disabled={isLoading}
+                    className="w-full bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-600 hover:to-emerald-600 text-black font-semibold py-3 shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Sign In
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    {isLoading ? 'Signing In...' : 'Sign In'}
+                    {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
                   </Button>
                 </motion.div>
 

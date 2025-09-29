@@ -7,14 +7,14 @@ const { generateToken, generateRefreshToken } = require('../utils/jwt');
 // @access  Public
 const register = async (req, res) => {
   try {
-    const { email, password, username } = req.body;
+    const { email, password, username, firstName, lastName } = req.body;
 
     // Check if user already exists
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [
           { email: email.toLowerCase() },
-          ...(username ? [{ username }] : []),
+          { username },
         ],
       },
     });
@@ -37,12 +37,16 @@ const register = async (req, res) => {
       data: {
         email: email.toLowerCase(),
         passwordHash,
-        username: username || null,
+        username,
+        firstName,
+        lastName,
       },
       select: {
         id: true,
         email: true,
         username: true,
+        firstName: true,
+        lastName: true,
         createdAt: true,
       },
     });
@@ -76,13 +80,20 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
+    // Find user by email or username
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: email.toLowerCase() },
+          { username: email } // Allow login with username in the email field
+        ]
+      },
       select: {
         id: true,
         email: true,
         username: true,
+        firstName: true,
+        lastName: true,
         passwordHash: true,
         isActive: true,
         createdAt: true,
@@ -226,6 +237,8 @@ const getMe = async (req, res) => {
         id: true,
         email: true,
         username: true,
+        firstName: true,
+        lastName: true,
         isActive: true,
         createdAt: true,
         updatedAt: true,

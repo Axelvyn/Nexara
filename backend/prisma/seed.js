@@ -7,7 +7,7 @@ async function main() {
   console.log('🌱 Starting database seed...');
 
   // Create test users
-  const hashedPassword = await bcrypt.hash('password123', 12);
+  const hashedPassword = await bcrypt.hash('Password123!', 12);
 
   const user = await prisma.user.upsert({
     where: { email: 'test@nexara.com' },
@@ -15,6 +15,8 @@ async function main() {
     create: {
       email: 'test@nexara.com',
       username: 'testuser',
+      firstName: 'Test',
+      lastName: 'User',
       passwordHash: hashedPassword,
     },
   });
@@ -25,6 +27,8 @@ async function main() {
     create: {
       email: 'admin@nexara.com',
       username: 'admin',
+      firstName: 'Admin',
+      lastName: 'User',
       passwordHash: hashedPassword,
     },
   });
@@ -35,6 +39,8 @@ async function main() {
     create: {
       email: 'dev@nexara.com',
       username: 'developer',
+      firstName: 'Developer',
+      lastName: 'User',
       passwordHash: hashedPassword,
     },
   });
@@ -45,6 +51,8 @@ async function main() {
     create: {
       email: 'viewer@nexara.com',
       username: 'viewer',
+      firstName: 'Viewer',
+      lastName: 'User',
       passwordHash: hashedPassword,
     },
   });
@@ -245,10 +253,10 @@ async function main() {
 
   console.log('🎉 Database seed completed successfully!');
   console.log('\n📋 Sample Data Created:');
-  console.log(`👤 Owner: ${user.email} (password: password123)`);
-  console.log(`👤 Admin: ${adminUser.email} (password: password123)`);
-  console.log(`👤 Developer: ${developerUser.email} (password: password123)`);
-  console.log(`👤 Viewer: ${viewerUser.email} (password: password123)`);
+  console.log(`👤 Owner: ${user.email} (password: Password123!)`);
+  console.log(`👤 Admin: ${adminUser.email} (password: Password123!)`);
+  console.log(`👤 Developer: ${developerUser.email} (password: Password123!)`);
+  console.log(`👤 Viewer: ${viewerUser.email} (password: Password123!)`);
   console.log(`📁 Project: ${project.name}`);
   console.log(`📋 Boards: ${board1.name}, ${board2.name}`);
   console.log(`📝 Issues: ${issues.length} sample issues`);

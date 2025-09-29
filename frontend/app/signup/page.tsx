@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,6 +24,8 @@ import {
   Zap,
   CheckCircle,
 } from 'lucide-react'
+import { authManager } from '@/lib/auth'
+import { useToastMessage } from '@/hooks/useToastMessage'
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -30,20 +33,190 @@ export default function SignupPage() {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
   })
   const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [passwordValidation, setPasswordValidation] = useState({
+    hasUppercase: false,
+    hasLowercase: false,
+    hasNumber: false,
+    hasSpecial: false,
+    hasMinLength: false,
+  })
+  const [usernameStatus, setUsernameStatus] = useState<{
+    isChecking: boolean
+    isAvailable: boolean | null
+    message: string
+  }>({
+    isChecking: false,
+    isAvailable: null,
+    message: '',
+  })
+  const router = useRouter()
+  const toast = useToastMessage()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Password validation function
+  const validatePassword = (password: string) => {
+    const validation = {
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /\d/.test(password),
+      hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+      hasMinLength: password.length >= 8,
+    }
+    setPasswordValidation(validation)
+    return Object.values(validation).every(Boolean)
+  }
+
+  // Username availability check with debouncing
+  const checkUsernameAvailability = async (username: string) => {
+    if (!username || username.length < 3) {
+      setUsernameStatus({ isChecking: false, isAvailable: null, message: '' })
+      return
+    }
+
+    // Basic format validation
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      setUsernameStatus({
+        isChecking: false,
+        isAvailable: false,
+        message: 'Username can only contain letters, numbers, underscores, and hyphens',
+      })
+      return
+    }
+
+    setUsernameStatus({ isChecking: true, isAvailable: null, message: 'Checking availability...' })
+
+    try {
+      const response = await fetch(`/api/auth/check-username/${encodeURIComponent(username)}`)
+      const data = await response.json()
+
+      setUsernameStatus({
+        isChecking: false,
+        isAvailable: data.available,
+        message: data.message,
+      })
+    } catch (error) {
+      setUsernameStatus({
+        isChecking: false,
+        isAvailable: false,
+        message: 'Error checking username availability',
+      })
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle signup logic here
-    console.log('Signup attempt:', formData)
+    
+    // Validation
+    if (!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+      toast.error('Error', 'Please fill in all fields')
+      return
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      toast.error('Error', 'Passwords do not match')
+      return
+    }
+
+    if (formData.password.length < 8) {
+      toast.error('Error', 'Password must be at least 8 characters long')
+      return
+    }
+
+    if (!validatePassword(formData.password)) {
+      toast.error('Error', 'Password must contain uppercase, lowercase, number, and special character')
+      return
+    }
+
+    if (formData.username.length < 3 || formData.username.length > 30) {
+      toast.error('Error', 'Username must be between 3 and 30 characters')
+      return
+    }
+
+    if (!/^[a-zA-Z0-9_-]+$/.test(formData.username)) {
+      toast.error('Error', 'Username can only contain letters, numbers, underscores, and hyphens')
+      return
+    }
+
+    if (usernameStatus.isAvailable === false) {
+      toast.error('Error', 'Username is not available. Please choose a different one.')
+      return
+    }
+
+    if (usernameStatus.isChecking) {
+      toast.error('Error', 'Please wait while we check username availability')
+      return
+    }
+
+    if (!agreedToTerms) {
+      toast.error('Error', 'Please agree to the terms and conditions')
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        toast.error('Registration Failed', data.message || 'Failed to create account')
+        return
+      }
+
+      if (data.success && data.data) {
+        // Store authentication data
+        authManager.login(data.data.token, data.data.user, data.data.refreshToken)
+        
+        toast.success('Account Created', 'Welcome to Nexara!')
+        
+        // Redirect to dashboard
+        router.push('/userdashboard')
+      } else {
+        toast.error('Registration Failed', 'Invalid response from server')
+      }
+    } catch (error) {
+      console.error('Registration error:', error)
+      toast.error('Registration Failed', 'Network error. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+    
+    // Validate password in real-time
+    if (field === 'password') {
+      validatePassword(value)
+    }
+    
+    // Check username availability with debouncing
+    if (field === 'username') {
+      // Clear previous timeout
+      if (typeof window !== 'undefined') {
+        clearTimeout((window as any).usernameTimeout)
+      }
+      
+      // Set new timeout for debounced checking
+      if (typeof window !== 'undefined') {
+        (window as any).usernameTimeout = setTimeout(() => {
+          checkUsernameAvailability(value)
+        }, 500) // 500ms delay
+      }
+    }
   }
 
   return (
@@ -202,7 +375,55 @@ export default function SignupPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                  <div className="space-y-2">
+                  <Label
+                    htmlFor="username"
+                    className="text-slate-300 text-sm font-medium"
+                  >
+                    Username
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="Choose a username"
+                      value={formData.username}
+                      onChange={e =>
+                        handleInputChange('username', e.target.value)
+                      }
+                      className={`pl-10 pr-10 bg-slate-800/50 border-slate-700 text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 ${
+                        usernameStatus.isAvailable === true ? 'border-emerald-500 ring-1 ring-emerald-500/20' :
+                        usernameStatus.isAvailable === false ? 'border-red-500 ring-1 ring-red-500/20' : ''
+                      }`}
+                      required
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {usernameStatus.isChecking && (
+                        <div className="w-4 h-4 border-2 border-slate-400 border-t-emerald-500 rounded-full animate-spin" />
+                      )}
+                      {!usernameStatus.isChecking && usernameStatus.isAvailable === true && (
+                        <CheckCircle className="w-4 h-4 text-emerald-500" />
+                      )}
+                      {!usernameStatus.isChecking && usernameStatus.isAvailable === false && (
+                        <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">✕</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {usernameStatus.message && (
+                    <p className={`text-xs mt-1 ${
+                      usernameStatus.isAvailable === true ? 'text-emerald-400' :
+                      usernameStatus.isAvailable === false ? 'text-red-400' : 'text-slate-400'
+                    }`}>
+                      {usernameStatus.message}
+                    </p>
+                  )}
+                  <p className="text-xs text-slate-400 mt-1">
+                    3-30 characters, letters, numbers, underscores, and hyphens only
+                  </p>
+                </div>                <div className="space-y-2">
                   <Label
                     htmlFor="email"
                     className="text-slate-300 text-sm font-medium"
@@ -256,6 +477,53 @@ export default function SignupPage() {
                         <EyeOff className="w-4 h-4" />
                       )}
                     </Button>
+                  </div>
+                  
+                  {/* Password Requirements */}
+                  <div className="mt-2 space-y-1">
+                    <p className="text-xs text-slate-400 mb-2">Password requirements:</p>
+                    <div className="grid grid-cols-1 gap-1 text-xs">
+                      <div className={`flex items-center gap-2 ${passwordValidation.hasMinLength ? 'text-emerald-400' : 'text-slate-400'}`}>
+                        {passwordValidation.hasMinLength ? (
+                          <CheckCircle className="w-3 h-3" />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full border border-slate-600" />
+                        )}
+                        At least 8 characters
+                      </div>
+                      <div className={`flex items-center gap-2 ${passwordValidation.hasUppercase ? 'text-emerald-400' : 'text-slate-400'}`}>
+                        {passwordValidation.hasUppercase ? (
+                          <CheckCircle className="w-3 h-3" />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full border border-slate-600" />
+                        )}
+                        One uppercase letter
+                      </div>
+                      <div className={`flex items-center gap-2 ${passwordValidation.hasLowercase ? 'text-emerald-400' : 'text-slate-400'}`}>
+                        {passwordValidation.hasLowercase ? (
+                          <CheckCircle className="w-3 h-3" />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full border border-slate-600" />
+                        )}
+                        One lowercase letter
+                      </div>
+                      <div className={`flex items-center gap-2 ${passwordValidation.hasNumber ? 'text-emerald-400' : 'text-slate-400'}`}>
+                        {passwordValidation.hasNumber ? (
+                          <CheckCircle className="w-3 h-3" />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full border border-slate-600" />
+                        )}
+                        One number
+                      </div>
+                      <div className={`flex items-center gap-2 ${passwordValidation.hasSpecial ? 'text-emerald-400' : 'text-slate-400'}`}>
+                        {passwordValidation.hasSpecial ? (
+                          <CheckCircle className="w-3 h-3" />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full border border-slate-600" />
+                        )}
+                        One special character (!@#$%^&*)
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -334,10 +602,11 @@ export default function SignupPage() {
                 >
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-black font-semibold py-3 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300"
+                    disabled={isLoading || !agreedToTerms}
+                    className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-black font-semibold py-3 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Create Account
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    {isLoading ? 'Creating Account...' : 'Create Account'}
+                    {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
                   </Button>
                 </motion.div>
 
