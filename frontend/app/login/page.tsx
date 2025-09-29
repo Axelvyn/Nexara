@@ -28,7 +28,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!email || !password) {
       toast.error('Error', 'Please fill in all fields')
       return
@@ -54,10 +54,14 @@ export default function LoginPage() {
 
       if (data.success && data.data) {
         // Store authentication data
-        authManager.login(data.data.token, data.data.user, data.data.refreshToken)
-        
+        authManager.login(
+          data.data.token,
+          data.data.user,
+          data.data.refreshToken
+        )
+
         toast.success('Login Successful', 'Welcome back!')
-        
+
         // Redirect to dashboard
         router.push('/userdashboard')
       } else {

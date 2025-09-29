@@ -37,7 +37,8 @@ const checkUsername = async (req, res) => {
     if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
       return res.status(400).json({
         success: false,
-        message: 'Username can only contain letters, numbers, underscores, and hyphens',
+        message:
+          'Username can only contain letters, numbers, underscores, and hyphens',
         available: false,
       });
     }
@@ -53,8 +54,8 @@ const checkUsername = async (req, res) => {
     res.json({
       success: true,
       available: isAvailable,
-      message: isAvailable 
-        ? 'Username is available' 
+      message: isAvailable
+        ? 'Username is available'
         : 'Username is already taken',
       username,
     });

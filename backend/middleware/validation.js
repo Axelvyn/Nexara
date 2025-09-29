@@ -26,7 +26,9 @@ const validateUserRegistration = [
   body('password')
     .isLength({ min: 8 })
     .withMessage('Password must be at least 8 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/)
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/
+    )
     .withMessage(
       'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
     ),
@@ -45,14 +47,18 @@ const validateUserRegistration = [
     .isLength({ min: 1, max: 50 })
     .withMessage('First name must be between 1 and 50 characters')
     .matches(/^[a-zA-Z\s'-]+$/)
-    .withMessage('First name can only contain letters, spaces, hyphens, and apostrophes'),
+    .withMessage(
+      'First name can only contain letters, spaces, hyphens, and apostrophes'
+    ),
   body('lastName')
     .notEmpty()
     .withMessage('Last name is required')
     .isLength({ min: 1, max: 50 })
     .withMessage('Last name must be between 1 and 50 characters')
     .matches(/^[a-zA-Z\s'-]+$/)
-    .withMessage('Last name can only contain letters, spaces, hyphens, and apostrophes'),
+    .withMessage(
+      'Last name can only contain letters, spaces, hyphens, and apostrophes'
+    ),
   handleValidationErrors,
 ];
 
@@ -60,11 +66,11 @@ const validateUserLogin = [
   body('email')
     .notEmpty()
     .withMessage('Email or username is required')
-    .custom((value) => {
+    .custom(value => {
       // Check if it's an email or username
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const usernameRegex = /^[a-zA-Z0-9_-]+$/;
-      
+
       if (!emailRegex.test(value) && !usernameRegex.test(value)) {
         throw new Error('Please provide a valid email address or username');
       }

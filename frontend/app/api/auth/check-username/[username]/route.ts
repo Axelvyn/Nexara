@@ -15,8 +15,11 @@ export async function GET(
     }
 
     // Forward the request to the backend API
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-    const response = await fetch(`${backendUrl}/api/auth/check-username/${encodeURIComponent(username)}`)
+    const backendUrl =
+      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+    const response = await fetch(
+      `${backendUrl}/api/auth/check-username/${encodeURIComponent(username)}`
+    )
 
     const data = await response.json()
 

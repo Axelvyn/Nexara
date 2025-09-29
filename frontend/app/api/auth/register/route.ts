@@ -3,10 +3,18 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { firstName, lastName, username, email, password, confirmPassword } = body
+    const { firstName, lastName, username, email, password, confirmPassword } =
+      body
 
     // Validate required fields
-    if (!firstName || !lastName || !username || !email || !password || !confirmPassword) {
+    if (
+      !firstName ||
+      !lastName ||
+      !username ||
+      !email ||
+      !password ||
+      !confirmPassword
+    ) {
       return NextResponse.json(
         { success: false, message: 'All fields are required' },
         { status: 400 }
@@ -33,7 +41,10 @@ export async function POST(request: Request) {
     // Validate password strength
     if (password.length < 8) {
       return NextResponse.json(
-        { success: false, message: 'Password must be at least 8 characters long' },
+        {
+          success: false,
+          message: 'Password must be at least 8 characters long',
+        },
         { status: 400 }
       )
     }
@@ -46,7 +57,11 @@ export async function POST(request: Request) {
 
     if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
       return NextResponse.json(
-        { success: false, message: 'Password must contain uppercase, lowercase, number, and special character' },
+        {
+          success: false,
+          message:
+            'Password must contain uppercase, lowercase, number, and special character',
+        },
         { status: 400 }
       )
     }
@@ -54,31 +69,39 @@ export async function POST(request: Request) {
     // Validate username format (basic validation)
     if (username.length < 3 || username.length > 30) {
       return NextResponse.json(
-        { success: false, message: 'Username must be between 3 and 30 characters' },
+        {
+          success: false,
+          message: 'Username must be between 3 and 30 characters',
+        },
         { status: 400 }
       )
     }
 
     if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
       return NextResponse.json(
-        { success: false, message: 'Username can only contain letters, numbers, underscores, and hyphens' },
+        {
+          success: false,
+          message:
+            'Username can only contain letters, numbers, underscores, and hyphens',
+        },
         { status: 400 }
       )
     }
 
     // Forward the request to the backend API
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+    const backendUrl =
+      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
     const response = await fetch(`${backendUrl}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ 
-        email, 
-        password, 
+      body: JSON.stringify({
+        email,
+        password,
         username,
         firstName,
-        lastName
+        lastName,
       }),
     })
 

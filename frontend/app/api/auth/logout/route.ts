@@ -4,18 +4,21 @@ export async function POST(request: Request) {
   try {
     // Get the authorization token from headers
     const authHeader = request.headers.get('authorization')
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
+    const token = authHeader?.startsWith('Bearer ')
+      ? authHeader.substring(7)
+      : null
 
     if (token) {
       // Forward the logout request to the backend API
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-      
+      const backendUrl =
+        process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+
       try {
         await fetch(`${backendUrl}/api/auth/logout`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         })
       } catch (error) {

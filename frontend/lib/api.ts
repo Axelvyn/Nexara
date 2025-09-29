@@ -103,7 +103,7 @@ class ApiService {
     if (!token) {
       throw new Error('No authentication token found')
     }
-    
+
     return this.request('/auth/me', {
       method: 'GET',
       headers: {

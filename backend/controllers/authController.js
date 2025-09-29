@@ -12,10 +12,7 @@ const register = async (req, res) => {
     // Check if user already exists
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [
-          { email: email.toLowerCase() },
-          { username },
-        ],
+        OR: [{ email: email.toLowerCase() }, { username }],
       },
     });
 
@@ -85,8 +82,8 @@ const login = async (req, res) => {
       where: {
         OR: [
           { email: email.toLowerCase() },
-          { username: email } // Allow login with username in the email field
-        ]
+          { username: email }, // Allow login with username in the email field
+        ],
       },
       select: {
         id: true,

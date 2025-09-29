@@ -84,15 +84,22 @@ export default function SignupPage() {
       setUsernameStatus({
         isChecking: false,
         isAvailable: false,
-        message: 'Username can only contain letters, numbers, underscores, and hyphens',
+        message:
+          'Username can only contain letters, numbers, underscores, and hyphens',
       })
       return
     }
 
-    setUsernameStatus({ isChecking: true, isAvailable: null, message: 'Checking availability...' })
+    setUsernameStatus({
+      isChecking: true,
+      isAvailable: null,
+      message: 'Checking availability...',
+    })
 
     try {
-      const response = await fetch(`/api/auth/check-username/${encodeURIComponent(username)}`)
+      const response = await fetch(
+        `/api/auth/check-username/${encodeURIComponent(username)}`
+      )
       const data = await response.json()
 
       setUsernameStatus({
@@ -111,9 +118,16 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Validation
-    if (!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.username ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
       toast.error('Error', 'Please fill in all fields')
       return
     }
@@ -129,7 +143,10 @@ export default function SignupPage() {
     }
 
     if (!validatePassword(formData.password)) {
-      toast.error('Error', 'Password must contain uppercase, lowercase, number, and special character')
+      toast.error(
+        'Error',
+        'Password must contain uppercase, lowercase, number, and special character'
+      )
       return
     }
 
@@ -139,12 +156,18 @@ export default function SignupPage() {
     }
 
     if (!/^[a-zA-Z0-9_-]+$/.test(formData.username)) {
-      toast.error('Error', 'Username can only contain letters, numbers, underscores, and hyphens')
+      toast.error(
+        'Error',
+        'Username can only contain letters, numbers, underscores, and hyphens'
+      )
       return
     }
 
     if (usernameStatus.isAvailable === false) {
-      toast.error('Error', 'Username is not available. Please choose a different one.')
+      toast.error(
+        'Error',
+        'Username is not available. Please choose a different one.'
+      )
       return
     }
 
@@ -172,16 +195,23 @@ export default function SignupPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        toast.error('Registration Failed', data.message || 'Failed to create account')
+        toast.error(
+          'Registration Failed',
+          data.message || 'Failed to create account'
+        )
         return
       }
 
       if (data.success && data.data) {
         // Store authentication data
-        authManager.login(data.data.token, data.data.user, data.data.refreshToken)
-        
+        authManager.login(
+          data.data.token,
+          data.data.user,
+          data.data.refreshToken
+        )
+
         toast.success('Account Created', 'Welcome to Nexara!')
-        
+
         // Redirect to dashboard
         router.push('/userdashboard')
       } else {
@@ -197,22 +227,22 @@ export default function SignupPage() {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
-    
+
     // Validate password in real-time
     if (field === 'password') {
       validatePassword(value)
     }
-    
+
     // Check username availability with debouncing
     if (field === 'username') {
       // Clear previous timeout
       if (typeof window !== 'undefined') {
         clearTimeout((window as any).usernameTimeout)
       }
-      
+
       // Set new timeout for debounced checking
       if (typeof window !== 'undefined') {
-        (window as any).usernameTimeout = setTimeout(() => {
+        ;(window as any).usernameTimeout = setTimeout(() => {
           checkUsernameAvailability(value)
         }, 500) // 500ms delay
       }
@@ -374,8 +404,7 @@ export default function SignupPage() {
                     </div>
                   </div>
                 </div>
-
-                  <div className="space-y-2">
+                <div className="space-y-2">
                   <Label
                     htmlFor="username"
                     className="text-slate-300 text-sm font-medium"
@@ -393,8 +422,11 @@ export default function SignupPage() {
                         handleInputChange('username', e.target.value)
                       }
                       className={`pl-10 pr-10 bg-slate-800/50 border-slate-700 text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 ${
-                        usernameStatus.isAvailable === true ? 'border-emerald-500 ring-1 ring-emerald-500/20' :
-                        usernameStatus.isAvailable === false ? 'border-red-500 ring-1 ring-red-500/20' : ''
+                        usernameStatus.isAvailable === true
+                          ? 'border-emerald-500 ring-1 ring-emerald-500/20'
+                          : usernameStatus.isAvailable === false
+                            ? 'border-red-500 ring-1 ring-red-500/20'
+                            : ''
                       }`}
                       required
                     />
@@ -402,28 +434,39 @@ export default function SignupPage() {
                       {usernameStatus.isChecking && (
                         <div className="w-4 h-4 border-2 border-slate-400 border-t-emerald-500 rounded-full animate-spin" />
                       )}
-                      {!usernameStatus.isChecking && usernameStatus.isAvailable === true && (
-                        <CheckCircle className="w-4 h-4 text-emerald-500" />
-                      )}
-                      {!usernameStatus.isChecking && usernameStatus.isAvailable === false && (
-                        <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">✕</span>
-                        </div>
-                      )}
+                      {!usernameStatus.isChecking &&
+                        usernameStatus.isAvailable === true && (
+                          <CheckCircle className="w-4 h-4 text-emerald-500" />
+                        )}
+                      {!usernameStatus.isChecking &&
+                        usernameStatus.isAvailable === false && (
+                          <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">
+                              ✕
+                            </span>
+                          </div>
+                        )}
                     </div>
                   </div>
                   {usernameStatus.message && (
-                    <p className={`text-xs mt-1 ${
-                      usernameStatus.isAvailable === true ? 'text-emerald-400' :
-                      usernameStatus.isAvailable === false ? 'text-red-400' : 'text-slate-400'
-                    }`}>
+                    <p
+                      className={`text-xs mt-1 ${
+                        usernameStatus.isAvailable === true
+                          ? 'text-emerald-400'
+                          : usernameStatus.isAvailable === false
+                            ? 'text-red-400'
+                            : 'text-slate-400'
+                      }`}
+                    >
                       {usernameStatus.message}
                     </p>
                   )}
                   <p className="text-xs text-slate-400 mt-1">
-                    3-30 characters, letters, numbers, underscores, and hyphens only
+                    3-30 characters, letters, numbers, underscores, and hyphens
+                    only
                   </p>
-                </div>                <div className="space-y-2">
+                </div>{' '}
+                <div className="space-y-2">
                   <Label
                     htmlFor="email"
                     className="text-slate-300 text-sm font-medium"
@@ -443,7 +486,6 @@ export default function SignupPage() {
                     />
                   </div>
                 </div>
-
                 <div className="space-y-2">
                   <Label
                     htmlFor="password"
@@ -478,12 +520,16 @@ export default function SignupPage() {
                       )}
                     </Button>
                   </div>
-                  
+
                   {/* Password Requirements */}
                   <div className="mt-2 space-y-1">
-                    <p className="text-xs text-slate-400 mb-2">Password requirements:</p>
+                    <p className="text-xs text-slate-400 mb-2">
+                      Password requirements:
+                    </p>
                     <div className="grid grid-cols-1 gap-1 text-xs">
-                      <div className={`flex items-center gap-2 ${passwordValidation.hasMinLength ? 'text-emerald-400' : 'text-slate-400'}`}>
+                      <div
+                        className={`flex items-center gap-2 ${passwordValidation.hasMinLength ? 'text-emerald-400' : 'text-slate-400'}`}
+                      >
                         {passwordValidation.hasMinLength ? (
                           <CheckCircle className="w-3 h-3" />
                         ) : (
@@ -491,7 +537,9 @@ export default function SignupPage() {
                         )}
                         At least 8 characters
                       </div>
-                      <div className={`flex items-center gap-2 ${passwordValidation.hasUppercase ? 'text-emerald-400' : 'text-slate-400'}`}>
+                      <div
+                        className={`flex items-center gap-2 ${passwordValidation.hasUppercase ? 'text-emerald-400' : 'text-slate-400'}`}
+                      >
                         {passwordValidation.hasUppercase ? (
                           <CheckCircle className="w-3 h-3" />
                         ) : (
@@ -499,7 +547,9 @@ export default function SignupPage() {
                         )}
                         One uppercase letter
                       </div>
-                      <div className={`flex items-center gap-2 ${passwordValidation.hasLowercase ? 'text-emerald-400' : 'text-slate-400'}`}>
+                      <div
+                        className={`flex items-center gap-2 ${passwordValidation.hasLowercase ? 'text-emerald-400' : 'text-slate-400'}`}
+                      >
                         {passwordValidation.hasLowercase ? (
                           <CheckCircle className="w-3 h-3" />
                         ) : (
@@ -507,7 +557,9 @@ export default function SignupPage() {
                         )}
                         One lowercase letter
                       </div>
-                      <div className={`flex items-center gap-2 ${passwordValidation.hasNumber ? 'text-emerald-400' : 'text-slate-400'}`}>
+                      <div
+                        className={`flex items-center gap-2 ${passwordValidation.hasNumber ? 'text-emerald-400' : 'text-slate-400'}`}
+                      >
                         {passwordValidation.hasNumber ? (
                           <CheckCircle className="w-3 h-3" />
                         ) : (
@@ -515,7 +567,9 @@ export default function SignupPage() {
                         )}
                         One number
                       </div>
-                      <div className={`flex items-center gap-2 ${passwordValidation.hasSpecial ? 'text-emerald-400' : 'text-slate-400'}`}>
+                      <div
+                        className={`flex items-center gap-2 ${passwordValidation.hasSpecial ? 'text-emerald-400' : 'text-slate-400'}`}
+                      >
                         {passwordValidation.hasSpecial ? (
                           <CheckCircle className="w-3 h-3" />
                         ) : (
@@ -526,7 +580,6 @@ export default function SignupPage() {
                     </div>
                   </div>
                 </div>
-
                 <div className="space-y-2">
                   <Label
                     htmlFor="confirmPassword"
@@ -564,7 +617,6 @@ export default function SignupPage() {
                     </Button>
                   </div>
                 </div>
-
                 <div className="flex items-start space-x-3 pt-2">
                   <input
                     id="terms"
@@ -594,7 +646,6 @@ export default function SignupPage() {
                     </Link>
                   </Label>
                 </div>
-
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -609,7 +660,6 @@ export default function SignupPage() {
                     {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
                   </Button>
                 </motion.div>
-
                 <div className="text-center pt-2">
                   <p className="text-slate-400 text-sm">
                     Already have an account?{' '}

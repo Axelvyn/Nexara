@@ -4,7 +4,9 @@ export async function GET(request: Request) {
   try {
     // Get the authorization token from headers
     const authHeader = request.headers.get('authorization')
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
+    const token = authHeader?.startsWith('Bearer ')
+      ? authHeader.substring(7)
+      : null
 
     if (!token) {
       return NextResponse.json(
@@ -14,12 +16,13 @@ export async function GET(request: Request) {
     }
 
     // Forward the request to the backend API
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+    const backendUrl =
+      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
     const response = await fetch(`${backendUrl}/api/auth/me`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     })
 
@@ -27,7 +30,10 @@ export async function GET(request: Request) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { success: false, message: data.message || 'Failed to get user information' },
+        {
+          success: false,
+          message: data.message || 'Failed to get user information',
+        },
         { status: response.status }
       )
     }
