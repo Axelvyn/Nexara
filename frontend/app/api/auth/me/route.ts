@@ -20,6 +20,7 @@ export async function GET(request: Request) {
       process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
     const response = await fetch(`${backendUrl}/api/auth/me`, {
       method: 'GET',
+      cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
