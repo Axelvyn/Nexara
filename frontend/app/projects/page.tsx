@@ -37,31 +37,28 @@ export default function ProjectsPage() {
   const toast = useToastMessage()
   const { isLoading: actionLoading, withLoading } = useLoadingState()
 
-  const loadProjects = useCallback(
-    async (page = 1, search = '') => {
-      try {
-        setError(null)
-        const response = await apiService.getProjects({
-          page,
-          limit: 12,
-          search: search || undefined,
-        })
+  const loadProjects = useCallback(async (page = 1, search = '') => {
+    try {
+      setError(null)
+      const response = await apiService.getProjects({
+        page,
+        limit: 12,
+        search: search || undefined,
+      })
 
-        setProjects(response.data.projects)
-        setCurrentPage(response.data.pagination.page)
-        setTotalPages(response.data.pagination.pages)
-      } catch (error) {
-        console.error('Error loading projects:', error)
-        setError('Failed to load projects')
-        setProjects([])
-        setCurrentPage(1)
-        setTotalPages(1)
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    [setProjects, setCurrentPage, setTotalPages, setIsLoading, setError]
-  )
+      setProjects(response.data.projects)
+      setCurrentPage(response.data.pagination.page)
+      setTotalPages(response.data.pagination.pages)
+    } catch (error) {
+      console.error('Error loading projects:', error)
+      setError('Failed to load projects')
+      setProjects([])
+      setCurrentPage(1)
+      setTotalPages(1)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     loadProjects()

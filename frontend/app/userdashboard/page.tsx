@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { PageLoading } from '@/components/ui/page-loading'
 import { Button } from '@/components/ui/button'
@@ -33,80 +33,79 @@ export default function UserDashboard() {
   const toast = useToastMessage()
   const router = useRouter()
 
-  useEffect(() => {
-    const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
+    try {
+      const authState = authManager.getAuthState()
+      if (!authState.token) {
+        console.log('No auth token found, redirecting to login')
+        router.push('/login')
+        return
+      }
+
+      console.log('Loading user profile...')
+
+      // Fetch user profile first
+      const profileResponse = await apiService.getProfile()
+      console.log('Profile response:', profileResponse)
+
+      setUserData({
+        name:
+          profileResponse.data.user.username || profileResponse.data.user.email,
+        email: profileResponse.data.user.email,
+        user: profileResponse.data.user,
+      })
+
+      console.log('Loading projects...')
+
+      // Try to fetch projects, but don&apos;t fail if it doesn&apos;t work
       try {
-        const authState = authManager.getAuthState()
-        if (!authState.token) {
-          console.log('No auth token found, redirecting to login')
+        const projectsResponse = await apiService.getProjects({ limit: 5 })
+        console.log('Projects response:', projectsResponse)
+        setProjects(projectsResponse.data.projects)
+      } catch (projectError) {
+        console.error('Error loading projects:', projectError)
+        // Set empty projects array and continue
+        setProjects([])
+      }
+
+      // Load recent projects from localStorage
+      const recent = getRecentProjects()
+      setRecentProjects(recent)
+
+      // Track navigation to dashboard
+      addToNavigationHistory('/userdashboard', 'Dashboard')
+    } catch (error) {
+      console.error('Error loading user data:', error)
+
+      // Check if it's an authentication error
+      if (error instanceof Error) {
+        const errorMessage = error.message.toLowerCase()
+        if (
+          errorMessage.includes('not authorized') ||
+          errorMessage.includes('token failed') ||
+          errorMessage.includes('unauthorized') ||
+          errorMessage.includes('401')
+        ) {
+          console.log(
+            'Authentication failed, clearing session and redirecting to login'
+          )
+          authManager.logout()
+          toast.error('Session Expired', 'Please log in again')
           router.push('/login')
           return
         }
-
-        console.log('Loading user profile...')
-
-        // Fetch user profile first
-        const profileResponse = await apiService.getProfile()
-        console.log('Profile response:', profileResponse)
-
-        setUserData({
-          name:
-            profileResponse.data.user.username ||
-            profileResponse.data.user.email,
-          email: profileResponse.data.user.email,
-          user: profileResponse.data.user,
-        })
-
-        console.log('Loading projects...')
-
-        // Try to fetch projects, but don&apos;t fail if it doesn&apos;t work
-        try {
-          const projectsResponse = await apiService.getProjects({ limit: 5 })
-          console.log('Projects response:', projectsResponse)
-          setProjects(projectsResponse.data.projects)
-        } catch (projectError) {
-          console.error('Error loading projects:', projectError)
-          // Set empty projects array and continue
-          setProjects([])
-        }
-
-        // Load recent projects from localStorage
-        const recent = getRecentProjects()
-        setRecentProjects(recent)
-
-        // Track navigation to dashboard
-        addToNavigationHistory('/userdashboard', 'Dashboard')
-      } catch (error) {
-        console.error('Error loading user data:', error)
-
-        // Check if it's an authentication error
-        if (error instanceof Error) {
-          const errorMessage = error.message.toLowerCase()
-          if (
-            errorMessage.includes('not authorized') ||
-            errorMessage.includes('token failed') ||
-            errorMessage.includes('unauthorized') ||
-            errorMessage.includes('401')
-          ) {
-            console.log(
-              'Authentication failed, clearing session and redirecting to login'
-            )
-            authManager.logout()
-            toast.error('Session Expired', 'Please log in again')
-            router.push('/login')
-            return
-          }
-          setError(`Failed to load user data: ${error.message}`)
-        } else {
-          setError('Failed to load user data')
-        }
-      } finally {
-        setIsLoading(false)
+        setError(`Failed to load user data: ${error.message}`)
+      } else {
+        setError('Failed to load user data')
       }
+    } finally {
+      setIsLoading(false)
     }
+  }, [router])
 
+  useEffect(() => {
     loadUserData()
-  }, [router, toast])
+  }, [loadUserData])
 
   if (isLoading) {
     return <PageLoading message="Loading your dashboard..." />

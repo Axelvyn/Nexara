@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -49,69 +49,63 @@ export default function ProjectDetail({
   const router = useRouter()
   const toast = useToastMessage()
 
-  useEffect(() => {
-    const loadProject = async () => {
+  const loadProject = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const resolvedParams = await params
+      const projectId = resolvedParams.id
+
+      const response = await apiService.getProject(projectId)
+      setProject(response.data.project)
+
+      // Fetch project stats
       try {
-        setIsLoading(true)
-        const resolvedParams = await params
-        const projectId = resolvedParams.id
-
-        const response = await apiService.getProject(projectId)
-        setProject(response.data.project)
-
-        // Fetch project stats
-        try {
-          const statsResponse = await fetch(
-            `/api/projects/${projectId}/stats`,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('nexara_auth_token')}`,
-              },
-            }
-          )
-          if (statsResponse.ok) {
-            const statsData = await statsResponse.json()
-            setProjectStats(statsData.data.stats)
-          }
-        } catch (statsError) {
-          console.error('Error fetching project stats:', statsError)
-        }
-
-        // Add to recent projects
-        addToRecentProjects({
-          id: response.data.project.id,
-          name: response.data.project.name,
-          description: response.data.project.description,
+        const statsResponse = await fetch(`/api/projects/${projectId}/stats`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('nexara_auth_token')}`,
+          },
         })
-
-        // Track navigation to this project
-        addToNavigationHistory(
-          `/projects/${projectId}`,
-          response.data.project.name
-        )
-
-        // Determine smart back route
-        const smartBack = getSmartBackRoute(
-          `/projects/${projectId}`,
-          '/projects'
-        )
-        setBackRoute(smartBack)
-      } catch (error) {
-        console.error('Error loading project:', error)
-        if (error instanceof Error) {
-          setError(error.message)
-          toast.error('Error', `Failed to load project: ${error.message}`)
-        } else {
-          setError('Failed to load project')
-          toast.error('Error', 'Failed to load project')
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json()
+          setProjectStats(statsData.data.stats)
         }
-      } finally {
-        setIsLoading(false)
+      } catch (statsError) {
+        console.error('Error fetching project stats:', statsError)
       }
-    }
 
+      // Add to recent projects
+      addToRecentProjects({
+        id: response.data.project.id,
+        name: response.data.project.name,
+        description: response.data.project.description,
+      })
+
+      // Track navigation to this project
+      addToNavigationHistory(
+        `/projects/${projectId}`,
+        response.data.project.name
+      )
+
+      // Determine smart back route
+      const smartBack = getSmartBackRoute(`/projects/${projectId}`, '/projects')
+      setBackRoute(smartBack)
+    } catch (error) {
+      console.error('Error loading project:', error)
+      if (error instanceof Error) {
+        setError(error.message)
+        toast.error('Error', `Failed to load project: ${error.message}`)
+      } else {
+        setError('Failed to load project')
+        toast.error('Error', 'Failed to load project')
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }, [params])
+
+  useEffect(() => {
     loadProject()
-  }, [params, toast]) // Fixed dependencies
+  }, [loadProject])
 
   if (isLoading) {
     return <PageLoading message="Loading project..." />
