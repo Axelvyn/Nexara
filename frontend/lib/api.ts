@@ -106,6 +106,170 @@ export interface ProjectResponse {
   message?: string
 }
 
+export type IssueType = 'BUG' | 'FEATURE' | 'TASK' | 'STORY' | 'EPIC'
+export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+export type IssueStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE'
+
+export interface Issue {
+  id: string
+  title: string
+  description?: string
+  type: IssueType
+  priority: Priority
+  status: IssueStatus
+  columnId: string
+  assigneeId?: string
+  reporterId: string
+  createdAt: string
+  updatedAt: string
+  assignee?: {
+    id: string
+    email: string
+    username: string
+  }
+  reporter: {
+    id: string
+    email: string
+    username: string
+  }
+  column?: {
+    id: string
+    name: string
+    board?: {
+      id: string
+      name: string
+      project?: {
+        id: string
+        name: string
+      }
+    }
+  }
+}
+
+export interface CreateIssueRequest {
+  title: string
+  description?: string
+  type?: IssueType
+  priority?: Priority
+  columnId: string
+  assigneeId?: string
+}
+
+export interface UpdateIssueRequest {
+  title?: string
+  description?: string
+  type?: IssueType
+  priority?: Priority
+  status?: IssueStatus
+  assigneeId?: string
+}
+
+export interface IssuesResponse {
+  success: boolean
+  data: {
+    issues: Issue[]
+    pagination: {
+      page: number
+      limit: number
+      total: number
+      pages: number
+    }
+  }
+}
+
+export interface IssueResponse {
+  success: boolean
+  data: {
+    issue: Issue
+  }
+  message?: string
+}
+
+export interface IssueStats {
+  totalIssues: number
+  issuesByStatus: Array<{
+    status: IssueStatus
+    _count: { status: number }
+  }>
+  issuesByType: Array<{
+    type: IssueType
+    _count: { type: number }
+  }>
+  issuesByPriority: Array<{
+    priority: Priority
+    _count: { priority: number }
+  }>
+}
+
+export interface IssueStatsResponse {
+  success: boolean
+  data: {
+    stats: IssueStats
+  }
+}
+
+export interface Board {
+  id: string
+  name: string
+  description?: string
+  projectId: string
+  createdAt: string
+  updatedAt: string
+  project?: {
+    id: string
+    name: string
+  }
+  columns?: Column[]
+  _count?: {
+    columns: number
+  }
+}
+
+export interface Column {
+  id: string
+  name: string
+  boardId: string
+  orderIndex: number
+  createdAt: string
+  updatedAt: string
+  issues?: Issue[]
+  _count?: {
+    issues: number
+  }
+}
+
+export interface CreateBoardRequest {
+  name: string
+  description?: string
+  projectId: string
+}
+
+export interface UpdateBoardRequest {
+  name?: string
+  description?: string
+}
+
+export interface BoardsResponse {
+  success: boolean
+  data: {
+    boards: Board[]
+    pagination: {
+      page: number
+      limit: number
+      total: number
+      pages: number
+    }
+  }
+}
+
+export interface BoardResponse {
+  success: boolean
+  data: {
+    board: Board
+  }
+  message?: string
+}
+
 class ApiService {
   private baseUrl: string
 
@@ -333,6 +497,227 @@ class ApiService {
         Authorization: `Bearer ${token}`,
       },
     })
+  }
+
+  // Issue Management Methods
+  async getIssuesByColumn(
+    columnId: string,
+    params?: {
+      page?: number
+      limit?: number
+      search?: string
+    }
+  ): Promise<IssuesResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    const searchParams = new URLSearchParams()
+    searchParams.set('columnId', columnId)
+    if (params?.page) searchParams.set('page', params.page.toString())
+    if (params?.limit) searchParams.set('limit', params.limit.toString())
+    if (params?.search) searchParams.set('search', params.search)
+
+    const url = `/issues${searchParams.toString() ? `?${searchParams.toString()}` : ''}`
+
+    return this.request<IssuesResponse>(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  }
+
+  async getIssue(issueId: string): Promise<IssueResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<IssueResponse>(`/issues/${issueId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  }
+
+  async createIssue(data: CreateIssueRequest): Promise<IssueResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<IssueResponse>('/issues', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updateIssue(
+    issueId: string,
+    data: UpdateIssueRequest
+  ): Promise<IssueResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<IssueResponse>(`/issues/${issueId}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteIssue(
+    issueId: string
+  ): Promise<{ success: boolean; message: string }> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<{ success: boolean; message: string }>(
+      `/issues/${issueId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+  }
+
+  async moveIssue(issueId: string, columnId: string): Promise<IssueResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<IssueResponse>(`/issues/${issueId}/move`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ columnId }),
+    })
+  }
+
+  async getIssueStats(): Promise<IssueStatsResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<IssueStatsResponse>('/issues/stats', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  }
+
+  // Board Management Methods
+  async getBoardsByProject(
+    projectId: string,
+    params?: {
+      page?: number
+      limit?: number
+      search?: string
+    }
+  ): Promise<BoardsResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    const searchParams = new URLSearchParams()
+    searchParams.set('projectId', projectId)
+    if (params?.page) searchParams.set('page', params.page.toString())
+    if (params?.limit) searchParams.set('limit', params.limit.toString())
+    if (params?.search) searchParams.set('search', params.search)
+
+    const url = `/boards${searchParams.toString() ? `?${searchParams.toString()}` : ''}`
+
+    return this.request<BoardsResponse>(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  }
+
+  async getBoard(boardId: string): Promise<BoardResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<BoardResponse>(`/boards/${boardId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  }
+
+  async createBoard(data: CreateBoardRequest): Promise<BoardResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<BoardResponse>('/boards', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updateBoard(
+    boardId: string,
+    data: UpdateBoardRequest
+  ): Promise<BoardResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<BoardResponse>(`/boards/${boardId}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteBoard(
+    boardId: string
+  ): Promise<{ success: boolean; message: string }> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<{ success: boolean; message: string }>(
+      `/boards/${boardId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
   }
 }
 
