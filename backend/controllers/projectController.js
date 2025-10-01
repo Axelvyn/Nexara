@@ -167,25 +167,60 @@ const createProject = async (req, res) => {
     const { name, description } = req.body;
     const userId = req.user.id;
 
-    const project = await prisma.project.create({
-      data: {
-        name,
-        description,
-        ownerId: userId,
-      },
-      include: {
-        _count: {
-          select: {
-            boards: true,
+    // Create project with default board and columns in a transaction
+    const result = await prisma.$transaction(async prisma => {
+      // Create the project
+      const project = await prisma.project.create({
+        data: {
+          name,
+          description,
+          ownerId: userId,
+        },
+      });
+
+      // Create default board
+      const board = await prisma.board.create({
+        data: {
+          name: 'Main Board',
+          description: 'Default board for project tasks',
+          projectId: project.id,
+        },
+      });
+
+      // Create default columns
+      const defaultColumns = [
+        { name: 'To Do', orderIndex: 0 },
+        { name: 'In Progress', orderIndex: 1 },
+        { name: 'Done', orderIndex: 2 },
+      ];
+
+      for (const column of defaultColumns) {
+        await prisma.column.create({
+          data: {
+            name: column.name,
+            orderIndex: column.orderIndex,
+            boardId: board.id,
+          },
+        });
+      }
+
+      // Return project with counts
+      return await prisma.project.findUnique({
+        where: { id: project.id },
+        include: {
+          _count: {
+            select: {
+              boards: true,
+            },
           },
         },
-      },
+      });
     });
 
     res.status(201).json({
       success: true,
-      message: 'Project created successfully',
-      data: { project },
+      message: 'Project created successfully with default board',
+      data: { project: result },
     });
   } catch (error) {
     console.error('Create project error:', error);

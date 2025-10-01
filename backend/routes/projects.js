@@ -10,6 +10,8 @@ const {
   getProjectStats,
 } = require('../controllers/projectController');
 
+const { setupDefaultBoard } = require('../controllers/utilityController');
+
 const { protect } = require('../middleware/auth');
 const { checkProjectAccess } = require('../middleware/rbac');
 const {
@@ -40,5 +42,11 @@ router.delete(
   deleteProject
 );
 router.get('/:projectId/stats', validateProjectId, getProjectStats);
+router.post(
+  '/:projectId/setup-default-board',
+  validateProjectId,
+  checkProjectAccess('PROJECT_UPDATE'),
+  setupDefaultBoard
+);
 
 module.exports = router;
