@@ -1,25 +1,5 @@
 # Nexara - AI-Powered Proje## 🚀 Project Overview
 
-Nexara is a modern, AI-powered project management platform designed for development teams. Built with cutting-edge technologies and focused on developer experience.
-
-### 🎯 **Current Features (Production Ready)**
-
-- **🔐 User Authentication** - JWT tokens with refresh token support
-- **📧 Email Verification** - Beautiful OTP emails with 6-digit codes and HTML templates
-- **👤 User Registration** - Real-time validation for usernames, emails, and passwords
-- **🔑 Secure Login/Logout** - Support for both email and username authentication
-- **📊 User Dashboard** - Protected routes and user profile management
-- **⚡ Real-time Validation** - Instant feedback for usernames, emails, and password strength
-- **🎨 Professional UI** - Modern dark theme with animated components
-
-### 🔮 **Planned Features**
-
-- **📋 Project Management** - Kanban boards and sprint planning
-- **🤖 AI Integration** - GPT-4 for intelligent task management and automation
-- **👥 Team Collaboration** - Real-time updates and notifications
-- **📈 Advanced Analytics** - Performance insights and reporting
-- **🔗 Integrations** - GitHub, Slack, and other developer toolsent Platform
-
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="public/assets/logos/logo-icon-for-dark-bg.svg" />
@@ -47,7 +27,7 @@ _Modern project management platform with AI-driven insights for development team
 
 ## 🚀 Project Overview
 
-Zenjira is like a personal AI assistant for Jira teams. It helps save time and reduce manual work by offering:
+Nexara is a modern, AI-powered project management platform designed for development teams. Built with cutting-edge technologies and focused on developer experience.
 
 - **No-code automation** using n8n (just drag and drop rules!)
 - **AI features** like ticket summarization and sprint planning with GPT‑4
