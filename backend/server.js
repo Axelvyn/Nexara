@@ -14,6 +14,7 @@ const userRoutes = require('./routes/users');
 const projectRoutes = require('./routes/projects');
 const projectMemberRoutes = require('./routes/projectMembers');
 const boardRoutes = require('./routes/boards');
+const columnRoutes = require('./routes/columns');
 const issueRoutes = require('./routes/issues');
 
 const app = express();
@@ -98,6 +99,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/projects', projectMemberRoutes);
 app.use('/api/boards', boardRoutes);
+app.use('/api/columns', columnRoutes);
 app.use('/api/issues', issueRoutes);
 
 // 404 handler

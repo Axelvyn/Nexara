@@ -165,6 +165,19 @@ const validateColumnId = [
   handleValidationErrors,
 ];
 
+const validateColumnReorder = [
+  body('boardId')
+    .isString()
+    .withMessage('Board ID must be a string')
+    .notEmpty()
+    .withMessage('Board ID is required'),
+  body('columnIds')
+    .isArray({ min: 1 })
+    .withMessage('Column IDs must be a non-empty array'),
+  body('columnIds.*').isString().withMessage('Each column ID must be a string'),
+  handleValidationErrors,
+];
+
 // Issue validation rules
 const validateIssue = [
   body('title')
@@ -229,6 +242,7 @@ module.exports = {
   validateBoardId,
   validateColumn,
   validateColumnId,
+  validateColumnReorder,
   validateIssue,
   validateIssueId,
   validatePagination,
