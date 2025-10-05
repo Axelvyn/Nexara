@@ -76,11 +76,28 @@ export function getSmartBackRoute(
   const routeHierarchy = {
     projectDetail: projectId ? `/projects/${projectId}` : null,
     projectIssues: projectId ? `/projects/${projectId}/issues` : null,
+    projectBoards: projectId ? `/projects/${projectId}/boards` : null,
     allProjects: '/projects',
     dashboard: '/userdashboard',
   }
 
+  // Check if current path is a board detail page
+  const boardDetailMatch = currentPath.match(
+    /\/projects\/([^\/]+)\/boards\/([^\/]+)$/
+  )
+  const boardsListMatch = currentPath.match(/\/projects\/([^\/]+)\/boards$/)
+
   // Smart navigation logic based on current page
+  if (boardDetailMatch) {
+    // From board detail page, always go back to boards list
+    return routeHierarchy.projectBoards || defaultRoute
+  }
+
+  if (boardsListMatch) {
+    // From boards list, go back to project detail
+    return routeHierarchy.projectDetail || defaultRoute
+  }
+
   if (currentPath === routeHierarchy.projectIssues) {
     // From issues page, always go back to project detail
     return routeHierarchy.projectDetail || defaultRoute
@@ -92,6 +109,7 @@ export function getSmartBackRoute(
       entry =>
         entry.path !== currentPath &&
         entry.path !== routeHierarchy.projectIssues &&
+        entry.path !== routeHierarchy.projectBoards &&
         !entry.path.startsWith(`/projects/${projectId}/`)
     )
 

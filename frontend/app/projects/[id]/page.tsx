@@ -409,6 +409,9 @@ export default function ProjectDetail({
                       </Button>
                       <Button
                         variant="outline"
+                        onClick={() =>
+                          router.push(`/projects/${project.id}/boards`)
+                        }
                         className="h-16 border-slate-700 text-slate-300 hover:bg-slate-800/50"
                       >
                         <Calendar className="w-5 h-5 mr-2" />
