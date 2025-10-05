@@ -2,14 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000'
 
-interface Params {
-  params: {
-    issueId: string
-  }
-}
-
-export async function PATCH(request: NextRequest, { params }: Params) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ issueId: string }> }
+) {
   try {
+    const { issueId } = await params
     const body = await request.json()
     const authHeader = request.headers.get('authorization')
 
@@ -20,17 +18,14 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       )
     }
 
-    const response = await fetch(
-      `${BACKEND_URL}/api/issues/${params.issueId}/move`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authHeader,
-        },
-        body: JSON.stringify(body),
-      }
-    )
+    const response = await fetch(`${BACKEND_URL}/api/issues/${issueId}/move`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: authHeader,
+      },
+      body: JSON.stringify(body),
+    })
 
     const data = await response.json()
 

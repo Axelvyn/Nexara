@@ -2,14 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000'
 
-interface Params {
-  params: {
-    boardId: string
-  }
-}
-
-export async function GET(request: NextRequest, { params }: Params) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ boardId: string }> }
+) {
   try {
+    const { boardId } = await params
     const authHeader = request.headers.get('authorization')
 
     if (!authHeader) {
@@ -19,15 +17,12 @@ export async function GET(request: NextRequest, { params }: Params) {
       )
     }
 
-    const response = await fetch(
-      `${BACKEND_URL}/api/boards/${params.boardId}`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: authHeader,
-        },
-      }
-    )
+    const response = await fetch(`${BACKEND_URL}/api/boards/${boardId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: authHeader,
+      },
+    })
 
     const data = await response.json()
 
@@ -45,8 +40,12 @@ export async function GET(request: NextRequest, { params }: Params) {
   }
 }
 
-export async function PUT(request: NextRequest, { params }: Params) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ boardId: string }> }
+) {
   try {
+    const { boardId } = await params
     const body = await request.json()
     const authHeader = request.headers.get('authorization')
 
@@ -57,17 +56,14 @@ export async function PUT(request: NextRequest, { params }: Params) {
       )
     }
 
-    const response = await fetch(
-      `${BACKEND_URL}/api/boards/${params.boardId}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authHeader,
-        },
-        body: JSON.stringify(body),
-      }
-    )
+    const response = await fetch(`${BACKEND_URL}/api/boards/${boardId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: authHeader,
+      },
+      body: JSON.stringify(body),
+    })
 
     const data = await response.json()
 
@@ -85,8 +81,12 @@ export async function PUT(request: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: Params) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ boardId: string }> }
+) {
   try {
+    const { boardId } = await params
     const authHeader = request.headers.get('authorization')
 
     if (!authHeader) {
@@ -96,15 +96,12 @@ export async function DELETE(request: NextRequest, { params }: Params) {
       )
     }
 
-    const response = await fetch(
-      `${BACKEND_URL}/api/boards/${params.boardId}`,
-      {
-        method: 'DELETE',
-        headers: {
-          Authorization: authHeader,
-        },
-      }
-    )
+    const response = await fetch(`${BACKEND_URL}/api/boards/${boardId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: authHeader,
+      },
+    })
 
     const data = await response.json()
 

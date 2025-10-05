@@ -2,14 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000'
 
-interface Params {
-  params: {
-    projectId: string
-  }
-}
-
-export async function POST(request: NextRequest, { params }: Params) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params
     const authHeader = request.headers.get('authorization')
 
     if (!authHeader) {
@@ -20,7 +18,7 @@ export async function POST(request: NextRequest, { params }: Params) {
     }
 
     const response = await fetch(
-      `${BACKEND_URL}/api/projects/${params.projectId}/setup-default-board`,
+      `${BACKEND_URL}/api/projects/${id}/setup-default-board`,
       {
         method: 'POST',
         headers: {

@@ -29,9 +29,24 @@ const setupDefaultBoard = async (req, res) => {
     });
 
     if (existingBoards.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Project already has boards',
+      // Return the existing board and its columns instead of error
+      const firstBoard = existingBoards[0];
+      const boardWithColumns = await prisma.board.findUnique({
+        where: { id: firstBoard.id },
+        include: {
+          columns: {
+            orderBy: { orderIndex: 'asc' }
+          }
+        }
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Project already has boards, returning existing default board',
+        data: { 
+          board: boardWithColumns, 
+          columns: boardWithColumns.columns 
+        },
       });
     }
 

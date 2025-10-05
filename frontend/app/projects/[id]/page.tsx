@@ -31,6 +31,7 @@ import {
 } from '@/lib/navigationHistory'
 import { formatTimeAgo } from '@/lib/timeUtils'
 import { CreateIssueModal } from '@/components/create-issue-modal'
+import { CreateBoardModal } from '@/components/create-board-modal'
 
 interface ProjectStats {
   totalBoards: number
@@ -59,6 +60,7 @@ export default function ProjectDetail({
   const [error, setError] = useState<string | null>(null)
   const [backRoute, setBackRoute] = useState<string>('/projects')
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showCreateBoardModal, setShowCreateBoardModal] = useState(false)
   const [defaultColumnId, setDefaultColumnId] = useState<string | null>(null)
   const [isSettingUpBoard, setIsSettingUpBoard] = useState(false)
   const router = useRouter()
@@ -143,48 +145,9 @@ export default function ProjectDetail({
         console.log('Boards response:', boardsResponse)
 
         if (boardsResponse.data.boards.length === 0) {
-          // No boards exist, create a default board
-          console.log('No boards found, creating default board...')
-          try {
-            const setupResponse = await fetch(
-              `/api/projects/${projectId}/setup-default-board`,
-              {
-                method: 'POST',
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem('nexara_auth_token')}`,
-                },
-              }
-            )
-
-            if (setupResponse.ok) {
-              console.log('Default board created successfully')
-              // Retry fetching boards
-              const retryBoardsResponse =
-                await apiService.getBoardsByProject(projectId)
-              if (retryBoardsResponse.data.boards.length > 0) {
-                const firstBoard = retryBoardsResponse.data.boards[0]
-                const boardResponse = await apiService.getBoard(firstBoard.id)
-                if (
-                  boardResponse.data.board.columns &&
-                  boardResponse.data.board.columns.length > 0
-                ) {
-                  const firstColumnId = boardResponse.data.board.columns[0].id
-                  console.log(
-                    'Setting default column ID after creation:',
-                    firstColumnId
-                  )
-                  setDefaultColumnId(firstColumnId)
-                }
-              }
-            } else {
-              console.error(
-                'Failed to create default board:',
-                await setupResponse.text()
-              )
-            }
-          } catch (setupError) {
-            console.error('Error creating default board:', setupError)
-          }
+          // No boards exist - don't automatically create one
+          console.log('No boards found, user will need to create one manually')
+          setDefaultColumnId(null)
         } else {
           // Boards exist, use the first one
           const firstBoard = boardsResponse.data.boards[0]
@@ -198,6 +161,10 @@ export default function ProjectDetail({
             const firstColumnId = boardResponse.data.board.columns[0].id
             console.log('Setting default column ID:', firstColumnId)
             setDefaultColumnId(firstColumnId)
+          } else {
+            // Board exists but has no columns
+            console.log('Board exists but has no columns')
+            setDefaultColumnId(null)
           }
         }
       } catch (boardError) {
@@ -396,7 +363,7 @@ export default function ProjectDetail({
                       </div>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       <Button
                         onClick={() =>
                           router.push(`/projects/${project.id}/issues`)
@@ -431,6 +398,14 @@ export default function ProjectDetail({
                       >
                         <Plus className="w-5 h-5 mr-2" />
                         Create Issue
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowCreateBoardModal(true)}
+                        className="h-16 border-slate-700 text-slate-300 hover:bg-slate-800/50"
+                      >
+                        <Plus className="w-5 h-5 mr-2" />
+                        Create Board
                       </Button>
                       <Button
                         variant="outline"
@@ -672,6 +647,21 @@ export default function ProjectDetail({
             toast.success(
               'Success',
               'Issue created successfully! Go to Issues page to manage it.'
+            )
+          }}
+        />
+
+        {/* Create Board Modal */}
+        <CreateBoardModal
+          isOpen={showCreateBoardModal}
+          onClose={() => setShowCreateBoardModal(false)}
+          projectId={project.id}
+          onBoardCreated={board => {
+            setShowCreateBoardModal(false)
+            loadProject() // Reload to update project data
+            toast.success(
+              'Success',
+              `Board "${board.name}" created successfully!`
             )
           }}
         />
