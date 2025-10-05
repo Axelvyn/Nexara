@@ -1,4 +1,4 @@
-# Nexara - AI-Powered Proje## 🚀 Project Overview
+# Nexara - AI-Powered Project Management
 
 <div align="center">
   <picture>
