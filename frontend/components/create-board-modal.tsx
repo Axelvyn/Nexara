@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { X, Plus, Kanban } from 'lucide-react'
+import { X, Plus, Kanban, Grip, Trash2 } from 'lucide-react'
 import { apiService } from '@/lib/api'
 import { useToastMessage } from '@/hooks/useToastMessage'
 import { useLoadingState } from '@/hooks/useLoadingState'
@@ -16,6 +16,11 @@ interface CreateBoardModalProps {
   onClose: () => void
   projectId: string
   onBoardCreated?: (board: any) => void
+}
+
+interface ColumnData {
+  id: string
+  name: string
 }
 
 export function CreateBoardModal({
@@ -28,6 +33,11 @@ export function CreateBoardModal({
     name: '',
     description: '',
   })
+  const [columns, setColumns] = useState<ColumnData[]>([
+    { id: '1', name: 'To Do' },
+    { id: '2', name: 'In Progress' },
+    { id: '3', name: 'Done' },
+  ])
   const [errors, setErrors] = useState<Record<string, string>>({})
   const toast = useToastMessage()
   const { isLoading, withLoading } = useLoadingState()
@@ -47,6 +57,19 @@ export function CreateBoardModal({
       newErrors.description = 'Description must be less than 500 characters'
     }
 
+    if (columns.length === 0) {
+      newErrors.columns = 'At least one column is required'
+    } else {
+      columns.forEach((column, index) => {
+        if (!column.name.trim()) {
+          newErrors[`column_${index}`] = 'Column name is required'
+        } else if (column.name.trim().length > 50) {
+          newErrors[`column_${index}`] =
+            'Column name must be less than 50 characters'
+        }
+      })
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -60,21 +83,35 @@ export function CreateBoardModal({
 
     await withLoading(async () => {
       try {
-        const response = await apiService.createBoard({
+        // First, create the board
+        const boardResponse = await apiService.createBoard({
           name: formData.name.trim(),
           description: formData.description.trim() || undefined,
           projectId,
         })
 
-        toast.success('Success', 'Board created successfully!')
-        onBoardCreated?.(response.data.board)
+        const boardId = boardResponse.data.board.id
+
+        // Then, create columns for the board
+        const columnPromises = columns.map((column, index) =>
+          apiService.createColumn({
+            name: column.name.trim(),
+            boardId,
+            orderIndex: index,
+          })
+        )
+
+        await Promise.all(columnPromises)
+
+        toast.success('Board created successfully with columns!')
+        onBoardCreated?.(boardResponse.data.board)
         handleClose()
       } catch (error) {
         console.error('Error creating board:', error)
         if (error instanceof Error) {
-          toast.error('Error', error.message)
+          toast.error(error.message)
         } else {
-          toast.error('Error', 'Failed to create board')
+          toast.error('Failed to create board')
         }
       }
     })
@@ -82,6 +119,11 @@ export function CreateBoardModal({
 
   const handleClose = () => {
     setFormData({ name: '', description: '' })
+    setColumns([
+      { id: '1', name: 'To Do' },
+      { id: '2', name: 'In Progress' },
+      { id: '3', name: 'Done' },
+    ])
     setErrors({})
     onClose()
   }
@@ -91,6 +133,56 @@ export function CreateBoardModal({
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }))
+    }
+  }
+
+  const addColumn = () => {
+    const newId = Math.max(0, ...columns.map(c => parseInt(c.id))) + 1
+    setColumns(prev => [...prev, { id: newId.toString(), name: '' }])
+  }
+
+  const removeColumn = (id: string) => {
+    if (columns.length > 1) {
+      setColumns(prev => prev.filter(c => c.id !== id))
+      // Clear any errors for removed column
+      const columnIndex = columns.findIndex(c => c.id === id)
+      if (errors[`column_${columnIndex}`]) {
+        setErrors(prev => ({ ...prev, [`column_${columnIndex}`]: '' }))
+      }
+    }
+  }
+
+  const updateColumn = (id: string, name: string) => {
+    setColumns(prev => prev.map(c => (c.id === id ? { ...c, name } : c)))
+    // Clear error when user starts typing
+    const columnIndex = columns.findIndex(c => c.id === id)
+    if (errors[`column_${columnIndex}`]) {
+      setErrors(prev => ({ ...prev, [`column_${columnIndex}`]: '' }))
+    }
+  }
+
+  const moveColumn = (fromIndex: number, toIndex: number) => {
+    const newColumns = [...columns]
+    const [removed] = newColumns.splice(fromIndex, 1)
+    newColumns.splice(toIndex, 0, removed)
+    setColumns(newColumns)
+  }
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.setData('text/plain', index.toString())
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault()
+    const dragIndex = parseInt(e.dataTransfer.getData('text/plain'))
+    if (dragIndex !== dropIndex) {
+      moveColumn(dragIndex, dropIndex)
     }
   }
 
@@ -112,7 +204,7 @@ export function CreateBoardModal({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
           >
             <div className="bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden">
               {/* Header */}
@@ -126,7 +218,7 @@ export function CreateBoardModal({
                       Create New Board
                     </h2>
                     <p className="text-sm text-slate-400">
-                      Add a new board to organize your project tasks
+                      Add a new board with custom columns to organize your tasks
                     </p>
                   </div>
                 </div>
@@ -185,6 +277,80 @@ export function CreateBoardModal({
                   )}
                   <p className="text-xs text-slate-500">
                     {formData.description.length}/500 characters
+                  </p>
+                </div>
+
+                {/* Columns */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-slate-300 text-sm font-medium">
+                      Board Columns *
+                    </Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addColumn}
+                      className="bg-slate-800/50 border-slate-700 text-slate-300 hover:bg-slate-700/50"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Add Column
+                    </Button>
+                  </div>
+
+                  {errors.columns && (
+                    <p className="text-red-400 text-sm">{errors.columns}</p>
+                  )}
+
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {columns.map((column, index) => (
+                      <div
+                        key={column.id}
+                        draggable
+                        onDragStart={e => handleDragStart(e, index)}
+                        onDragOver={handleDragOver}
+                        onDrop={e => handleDrop(e, index)}
+                        className="group flex items-center gap-2 p-3 bg-slate-800/30 rounded-lg border border-slate-700/50 hover:bg-slate-700/50 hover:border-slate-600/50 transition-all duration-200 cursor-move"
+                      >
+                        <div className="cursor-grab active:cursor-grabbing text-slate-500 hover:text-slate-300 transition-colors group-hover:text-slate-400">
+                          <Grip className="w-4 h-4" />
+                        </div>
+                        <div className="flex items-center text-xs text-slate-500 font-mono w-8 group-hover:text-slate-400 transition-colors">
+                          {index + 1}.
+                        </div>
+                        <div className="flex-1">
+                          <Input
+                            placeholder={`Column ${index + 1} name`}
+                            value={column.name}
+                            onChange={e =>
+                              updateColumn(column.id, e.target.value)
+                            }
+                            className="bg-slate-800/50 border-slate-700 text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-emerald-500/20 group-hover:bg-slate-700/50 transition-colors"
+                          />
+                          {errors[`column_${index}`] && (
+                            <p className="text-red-400 text-xs mt-1">
+                              {errors[`column_${index}`]}
+                            </p>
+                          )}
+                        </div>
+                        {columns.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeColumn(column.id)}
+                            className="text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-colors opacity-60 group-hover:opacity-100"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="text-xs text-slate-500">
+                    Drag columns to reorder them. Each column will be created in
+                    the specified order.
                   </p>
                 </div>
 

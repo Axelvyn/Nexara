@@ -238,6 +238,37 @@ export interface Column {
   }
 }
 
+export interface CreateColumnRequest {
+  name: string
+  boardId: string
+  orderIndex?: number
+}
+
+export interface UpdateColumnRequest {
+  name?: string
+  orderIndex?: number
+}
+
+export interface ColumnsResponse {
+  success: boolean
+  data: {
+    columns: Column[]
+  }
+}
+
+export interface ColumnResponse {
+  success: boolean
+  data: {
+    column: Column
+  }
+  message?: string
+}
+
+export interface ReorderColumnsRequest {
+  boardId: string
+  columnIds: string[]
+}
+
 export interface CreateBoardRequest {
   name: string
   description?: string
@@ -718,6 +749,102 @@ class ApiService {
         },
       }
     )
+  }
+
+  // Column Management Methods
+  async getColumnsByBoard(boardId: string): Promise<ColumnsResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<ColumnsResponse>(`/columns/board/${boardId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  }
+
+  async getColumn(columnId: string): Promise<ColumnResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<ColumnResponse>(`/columns/${columnId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  }
+
+  async createColumn(data: CreateColumnRequest): Promise<ColumnResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<ColumnResponse>('/columns', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updateColumn(
+    columnId: string,
+    data: UpdateColumnRequest
+  ): Promise<ColumnResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<ColumnResponse>(`/columns/${columnId}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteColumn(
+    columnId: string
+  ): Promise<{ success: boolean; message: string }> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<{ success: boolean; message: string }>(
+      `/columns/${columnId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+  }
+
+  async reorderColumns(data: ReorderColumnsRequest): Promise<ColumnsResponse> {
+    const token = authManager.getToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    return this.request<ColumnsResponse>('/columns', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
   }
 }
 
