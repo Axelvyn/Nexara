@@ -17,6 +17,8 @@ import {
   Edit,
   Trash2,
   FolderOpen,
+  ListFilter,
+  BarChart3,
 } from 'lucide-react'
 import { apiService, type Project } from '@/lib/api'
 import { useToastMessage } from '@/hooks/useToastMessage'
@@ -28,12 +30,22 @@ import {
   getSmartBackRoute,
 } from '@/lib/navigationHistory'
 import { formatTimeAgo } from '@/lib/timeUtils'
+import { CreateIssueModal } from '@/components/create-issue-modal'
+import { CreateBoardModal } from '@/components/create-board-modal'
 
 interface ProjectStats {
   totalBoards: number
   totalColumns: number
   projectCreated: string
   lastUpdated: string
+}
+
+interface IssueStats {
+  totalIssues: number
+  issuesByStatus: Array<{
+    status: string
+    _count: { status: number }
+  }>
 }
 
 export default function ProjectDetail({
@@ -43,11 +55,50 @@ export default function ProjectDetail({
 }) {
   const [project, setProject] = useState<Project | null>(null)
   const [projectStats, setProjectStats] = useState<ProjectStats | null>(null)
+  const [issueStats, setIssueStats] = useState<IssueStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [backRoute, setBackRoute] = useState<string>('/projects')
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showCreateBoardModal, setShowCreateBoardModal] = useState(false)
+  const [defaultColumnId, setDefaultColumnId] = useState<string | null>(null)
+  const [isSettingUpBoard, setIsSettingUpBoard] = useState(false)
   const router = useRouter()
   const toast = useToastMessage()
+
+  const createDefaultBoard = async () => {
+    if (!project) return
+
+    setIsSettingUpBoard(true)
+    try {
+      const setupResponse = await fetch(
+        `/api/projects/${project.id}/setup-default-board`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('nexara_auth_token')}`,
+          },
+        }
+      )
+
+      if (setupResponse.ok) {
+        toast.success(
+          'Success',
+          'Default board created! You can now create issues.'
+        )
+        // Reload the project data to get the new board
+        await loadProject()
+      } else {
+        const error = await setupResponse.json()
+        toast.error('Error', error.message || 'Failed to create default board')
+      }
+    } catch (error) {
+      console.error('Error creating default board:', error)
+      toast.error('Error', 'Failed to create default board')
+    } finally {
+      setIsSettingUpBoard(false)
+    }
+  }
 
   const loadProject = useCallback(async () => {
     try {
@@ -71,6 +122,53 @@ export default function ProjectDetail({
         }
       } catch (statsError) {
         console.error('Error fetching project stats:', statsError)
+      }
+
+      // Fetch issue stats
+      try {
+        const issueStatsResponse = await fetch('/api/issues/stats', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('nexara_auth_token')}`,
+          },
+        })
+        if (issueStatsResponse.ok) {
+          const issueStatsData = await issueStatsResponse.json()
+          setIssueStats(issueStatsData.data.stats)
+        }
+      } catch (issueStatsError) {
+        console.error('Error fetching issue stats:', issueStatsError)
+      }
+
+      // Get default column for creating issues
+      try {
+        const boardsResponse = await apiService.getBoardsByProject(projectId)
+        console.log('Boards response:', boardsResponse)
+
+        if (boardsResponse.data.boards.length === 0) {
+          // No boards exist - don't automatically create one
+          console.log('No boards found, user will need to create one manually')
+          setDefaultColumnId(null)
+        } else {
+          // Boards exist, use the first one
+          const firstBoard = boardsResponse.data.boards[0]
+          console.log('First board:', firstBoard)
+          const boardResponse = await apiService.getBoard(firstBoard.id)
+          console.log('Board details:', boardResponse)
+          if (
+            boardResponse.data.board.columns &&
+            boardResponse.data.board.columns.length > 0
+          ) {
+            const firstColumnId = boardResponse.data.board.columns[0].id
+            console.log('Setting default column ID:', firstColumnId)
+            setDefaultColumnId(firstColumnId)
+          } else {
+            // Board exists but has no columns
+            console.log('Board exists but has no columns')
+            setDefaultColumnId(null)
+          }
+        }
+      } catch (boardError) {
+        console.error('Error fetching boards for default column:', boardError)
       }
 
       // Add to recent projects
@@ -234,19 +332,90 @@ export default function ProjectDetail({
                   <h2 className="text-2xl font-bold text-white mb-6">
                     Quick Actions
                   </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Button className="h-16 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-black font-semibold">
-                      <Plus className="w-5 h-5 mr-2" />
-                      Create Issue
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="h-16 border-slate-700 text-slate-300 hover:bg-slate-800/50"
-                    >
-                      <Calendar className="w-5 h-5 mr-2" />
-                      View Boards
-                    </Button>
-                  </div>
+                  {!defaultColumnId ? (
+                    <div className="grid grid-cols-1 gap-4">
+                      <div className="text-center p-6 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
+                        <AlertCircle className="w-12 h-12 text-yellow-400 mx-auto mb-3" />
+                        <h3 className="text-lg font-semibold text-yellow-400 mb-2">
+                          Setup Required
+                        </h3>
+                        <p className="text-yellow-300 mb-4">
+                          This project needs a board to organize issues. Create
+                          a default board to get started.
+                        </p>
+                        <Button
+                          onClick={createDefaultBoard}
+                          disabled={isSettingUpBoard}
+                          className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-semibold"
+                        >
+                          {isSettingUpBoard ? (
+                            <>
+                              <Clock className="w-5 h-5 mr-2 animate-spin" />
+                              Setting up...
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-5 h-5 mr-2" />
+                              Setup Default Board
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <Button
+                        onClick={() =>
+                          router.push(`/projects/${project.id}/issues`)
+                        }
+                        className="h-16 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold"
+                      >
+                        <ListFilter className="w-5 h-5 mr-2" />
+                        Manage Issues
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          console.log(
+                            'Create Issue clicked, defaultColumnId:',
+                            defaultColumnId
+                          )
+                          if (defaultColumnId) {
+                            setShowCreateModal(true)
+                          } else {
+                            toast.error(
+                              'Error',
+                              'Please create a board and column first before adding issues'
+                            )
+                          }
+                        }}
+                        disabled={!defaultColumnId}
+                        className="h-16 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={
+                          !defaultColumnId
+                            ? 'Create a board first to add issues'
+                            : 'Create a new issue'
+                        }
+                      >
+                        <Plus className="w-5 h-5 mr-2" />
+                        Create Issue
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowCreateBoardModal(true)}
+                        className="h-16 border-slate-700 text-slate-300 hover:bg-slate-800/50"
+                      >
+                        <Plus className="w-5 h-5 mr-2" />
+                        Create Board
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="h-16 border-slate-700 text-slate-300 hover:bg-slate-800/50"
+                      >
+                        <Calendar className="w-5 h-5 mr-2" />
+                        View Boards
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </motion.div>
 
@@ -255,6 +424,90 @@ export default function ProjectDetail({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
+                className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/70 to-slate-800/70 backdrop-blur-xl border border-slate-700/30"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5" />
+                <div className="relative z-10 p-6">
+                  <h2 className="text-2xl font-bold text-white mb-6">
+                    Issue Overview
+                  </h2>
+                  {issueStats && issueStats.totalIssues > 0 ? (
+                    <div className="space-y-4">
+                      <div className="text-center p-4 rounded-xl bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 border border-cyan-500/20">
+                        <div className="text-2xl font-bold text-white mb-1">
+                          {issueStats.totalIssues}
+                        </div>
+                        <div className="text-sm text-slate-400">
+                          Total Issues
+                        </div>
+                      </div>
+
+                      {issueStats.issuesByStatus.map(statusItem => (
+                        <div
+                          key={statusItem.status}
+                          className="flex items-center justify-between p-3 rounded-xl bg-slate-800/50"
+                        >
+                          <span className="text-slate-300 capitalize">
+                            {statusItem.status.replace('_', ' ').toLowerCase()}
+                          </span>
+                          <span className="text-white font-semibold">
+                            {statusItem._count.status}
+                          </span>
+                        </div>
+                      ))}
+
+                      <Button
+                        onClick={() =>
+                          router.push(`/projects/${project.id}/issues`)
+                        }
+                        variant="outline"
+                        className="w-full border-slate-700 text-slate-300 hover:bg-slate-800/50"
+                      >
+                        <ListFilter className="w-4 h-4 mr-2" />
+                        View All Issues
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <BarChart3 className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+                      <p className="text-slate-400 mb-4">No issues yet</p>
+                      {defaultColumnId ? (
+                        <Button
+                          onClick={() => setShowCreateModal(true)}
+                          className="bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-600 hover:to-emerald-600 text-black font-semibold"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create First Issue
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={createDefaultBoard}
+                          disabled={isSettingUpBoard}
+                          className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-semibold"
+                        >
+                          {isSettingUpBoard ? (
+                            <>
+                              <Clock className="w-4 h-4 mr-2 animate-spin" />
+                              Setting up...
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-4 h-4 mr-2" />
+                              Setup Board First
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Recent Activity */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
                 className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/70 to-slate-800/70 backdrop-blur-xl border border-slate-700/30"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5" />
@@ -313,11 +566,21 @@ export default function ProjectDetail({
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-slate-400">Issues</span>
-                      <span className="text-white font-semibold">0</span>
+                      <span className="text-white font-semibold">
+                        {issueStats?.totalIssues || 0}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-slate-400">Boards</span>
-                      <span className="text-white font-semibold">1</span>
+                      <span className="text-white font-semibold">
+                        {projectStats?.totalBoards || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400">Columns</span>
+                      <span className="text-white font-semibold">
+                        {projectStats?.totalColumns || 0}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-slate-400">Members</span>
@@ -372,6 +635,36 @@ export default function ProjectDetail({
             </div>
           </div>
         </div>
+
+        {/* Create Issue Modal */}
+        <CreateIssueModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          columnId={defaultColumnId || undefined}
+          onIssueCreated={() => {
+            setShowCreateModal(false)
+            loadProject() // Reload to update stats
+            toast.success(
+              'Success',
+              'Issue created successfully! Go to Issues page to manage it.'
+            )
+          }}
+        />
+
+        {/* Create Board Modal */}
+        <CreateBoardModal
+          isOpen={showCreateBoardModal}
+          onClose={() => setShowCreateBoardModal(false)}
+          projectId={project.id}
+          onBoardCreated={board => {
+            setShowCreateBoardModal(false)
+            loadProject() // Reload to update project data
+            toast.success(
+              'Success',
+              `Board "${board.name}" created successfully!`
+            )
+          }}
+        />
       </div>
     </ProtectedRoute>
   )
