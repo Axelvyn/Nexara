@@ -35,17 +35,17 @@ const setupDefaultBoard = async (req, res) => {
         where: { id: firstBoard.id },
         include: {
           columns: {
-            orderBy: { orderIndex: 'asc' }
-          }
-        }
+            orderBy: { orderIndex: 'asc' },
+          },
+        },
       });
 
       return res.status(200).json({
         success: true,
         message: 'Project already has boards, returning existing default board',
-        data: { 
-          board: boardWithColumns, 
-          columns: boardWithColumns.columns 
+        data: {
+          board: boardWithColumns,
+          columns: boardWithColumns.columns,
         },
       });
     }
