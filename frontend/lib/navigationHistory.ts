@@ -19,6 +19,14 @@ export function addToNavigationHistory(path: string, title?: string) {
       return
     }
 
+    // Don't add if the last two entries would create a ping-pong pattern
+    if (history.length >= 2) {
+      const [latest, secondLatest] = history
+      if (latest.path === path && secondLatest.path === path) {
+        return // Skip adding to avoid loops
+      }
+    }
+
     // Add to beginning
     const updated = [
       { path, timestamp: new Date().toISOString(), title },
@@ -58,10 +66,58 @@ export function getSmartBackRoute(
   currentPath: string,
   defaultRoute: string = '/'
 ): string {
+  const history = getNavigationHistory()
+
+  // Extract project ID from current path for better logic
+  const projectIdMatch = currentPath.match(/\/projects\/([^\/]+)/)
+  const projectId = projectIdMatch?.[1]
+
+  // Define route hierarchy for smart navigation
+  const routeHierarchy = {
+    projectDetail: projectId ? `/projects/${projectId}` : null,
+    projectIssues: projectId ? `/projects/${projectId}/issues` : null,
+    allProjects: '/projects',
+    dashboard: '/userdashboard',
+  }
+
+  // Smart navigation logic based on current page
+  if (currentPath === routeHierarchy.projectIssues) {
+    // From issues page, always go back to project detail
+    return routeHierarchy.projectDetail || defaultRoute
+  }
+
+  if (currentPath === routeHierarchy.projectDetail) {
+    // From project detail, find the most recent non-project-related page
+    const nonProjectEntry = history.find(
+      entry =>
+        entry.path !== currentPath &&
+        entry.path !== routeHierarchy.projectIssues &&
+        !entry.path.startsWith(`/projects/${projectId}/`)
+    )
+
+    if (nonProjectEntry) {
+      return nonProjectEntry.path
+    }
+
+    // Fallback to all projects
+    return routeHierarchy.allProjects
+  }
+
+  // For other pages, use the previous route logic
   const previousRoute = getPreviousRoute(currentPath)
 
-  // If we have a previous route and it's not the same as current, use it
+  // Avoid ping-pong between related pages
   if (previousRoute && previousRoute !== currentPath) {
+    // Don't go back to issues page from project detail or vice versa
+    if (
+      (currentPath === routeHierarchy.projectDetail &&
+        previousRoute === routeHierarchy.projectIssues) ||
+      (currentPath === routeHierarchy.projectIssues &&
+        previousRoute === routeHierarchy.projectDetail)
+    ) {
+      return routeHierarchy.allProjects
+    }
+
     return previousRoute
   }
 
