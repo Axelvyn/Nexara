@@ -1,4 +1,4 @@
-# Nexara - AI-Powered Project Management
+# Nexara - AI-Powered Project Management Tool
 
 <div align="center">
   <picture>
@@ -23,7 +23,6 @@ _Modern project management platform with AI-driven insights for development team
 </div>
 
 ---
-
 
 ## 🚀 Project Overview
 
@@ -93,15 +92,15 @@ It’s built as a full **web application** — not just a browser extension — 
 <details>
 <summary><strong>Backend Infrastructure</strong></summary>
 
-| Technology            | Purpose                 | Implementation   |
-| --------------------- | ----------------------- | ---------------- |
-| **Node.js + Express** | Runtime & API Framework | REST API         |
-| **PostgreSQL**        | Primary Database        | 14+ via Prisma  |
-| **Prisma ORM**        | Database Management     | Type-safe queries|
-| **JWT + Refresh**     | Authentication          | Secure tokens    |
-| **Nodemailer**        | Email Service           | SMTP/Gmail       |
-| **bcrypt**            | Password Hashing        | Secure encryption|
-| **Express Validator** | Input Validation        | Server-side      |
+| Technology            | Purpose                 | Implementation    |
+| --------------------- | ----------------------- | ----------------- |
+| **Node.js + Express** | Runtime & API Framework | REST API          |
+| **PostgreSQL**        | Primary Database        | 14+ via Prisma    |
+| **Prisma ORM**        | Database Management     | Type-safe queries |
+| **JWT + Refresh**     | Authentication          | Secure tokens     |
+| **Nodemailer**        | Email Service           | SMTP/Gmail        |
+| **bcrypt**            | Password Hashing        | Secure encryption |
+| **Express Validator** | Input Validation        | Server-side       |
 
 </details>
 
@@ -383,30 +382,30 @@ npm run format:check
 ### 🔌 API Endpoints
 
 #### **Authentication**
-| Endpoint                    | Method | Description                              |
-| --------------------------- | ------ | ---------------------------------------- |
-| `/health`                   | GET    | Server health check                      |
-| `/api/auth/register`        | POST   | User registration with email verification|
-| `/api/auth/login`           | POST   | User login (email or username)          |
-| `/api/auth/verify-email`    | POST   | Verify email with OTP code              |
-| `/api/auth/resend-otp`      | POST   | Resend verification code                 |
-| `/api/auth/me`              | GET    | Get current user profile (protected)    |
-| `/api/auth/logout`          | POST   | User logout (protected)                  |
-| `/api/auth/refresh`         | POST   | Refresh JWT token                        |
+| Endpoint                 | Method | Description                               |
+| ------------------------ | ------ | ----------------------------------------- |
+| `/health`                | GET    | Server health check                       |
+| `/api/auth/register`     | POST   | User registration with email verification |
+| `/api/auth/login`        | POST   | User login (email or username)            |
+| `/api/auth/verify-email` | POST   | Verify email with OTP code                |
+| `/api/auth/resend-otp`   | POST   | Resend verification code                  |
+| `/api/auth/me`           | GET    | Get current user profile (protected)      |
+| `/api/auth/logout`       | POST   | User logout (protected)                   |
+| `/api/auth/refresh`      | POST   | Refresh JWT token                         |
 
 #### **Validation**
-| Endpoint                         | Method | Description                         |
-| -------------------------------- | ------ | ----------------------------------- |
-| `/api/auth/check-username/:username` | GET    | Check username availability         |
-| `/api/auth/check-email/:email`      | GET    | Check email availability            |
+| Endpoint                             | Method | Description                 |
+| ------------------------------------ | ------ | --------------------------- |
+| `/api/auth/check-username/:username` | GET    | Check username availability |
+| `/api/auth/check-email/:email`       | GET    | Check email availability    |
 
 #### **Coming Soon**
-| Endpoint                    | Method | Description                              |
-| --------------------------- | ------ | ---------------------------------------- |
-| `/api/projects`             | GET    | List user projects                       |
-| `/api/projects`             | POST   | Create new project                       |
-| `/api/issues`               | GET    | List project issues                      |
-| `/api/boards`               | GET    | List project boards                      |
+| Endpoint        | Method | Description         |
+| --------------- | ------ | ------------------- |
+| `/api/projects` | GET    | List user projects  |
+| `/api/projects` | POST   | Create new project  |
+| `/api/issues`   | GET    | List project issues |
+| `/api/boards`   | GET    | List project boards |
 
 ### Development URLs
 
@@ -493,16 +492,20 @@ npm run build
 - **Logs**: Check terminal output for detailed error messages
 
 ---
-## 📜 Code of Conduct
+
+## 🤝 Contributing
+
+### 📜 Code of Conduct
 
 Please read our [Code of Conduct](./CODE_OF_CONDUCT.md) to understand the expected behavior in this community.
 
-## Community Guidelines
+### 📋 Community Guidelines
 
-📜 Please review our [Community Guidelines](./COMMUNITY_GUIDELINES.md) before contributing.
-
+Please review our [Community Guidelines](./COMMUNITY_GUIDELINES.md) before contributing.
 
 ### 🌟 Our Amazing Contributors
+
+<div align="center">
 
 <a href="https://github.com/Axelvyn/Nexara/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Axelvyn/Nexara" alt="Contributors" />
