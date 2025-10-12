@@ -13,7 +13,9 @@
     "test:run": "vitest run",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^7.0.0",
@@ -53,6 +55,7 @@
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.7.0",
+    "cypress": "^15.0.0",
     "eslint": "^9.32.0",
     "eslint-config-next": "^15.4.5",
     "husky": "^9.0.11",
