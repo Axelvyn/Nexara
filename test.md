@@ -23,5 +23,23 @@ class TestMyFunctions(unittest.TestCase):
         # self.assertEqual(my_module.reverse_string("hello"), "olleh")
         pass # Placeholder if no such function exists yet
 
+
+        # Assuming you have a function to test in a file named 'my_module.py'
+
+def test_multiply_numbers():
+    """
+    Test the multiply_numbers function.
+    """
+    assert multiply_numbers(2, 3) == 6
+    assert multiply_numbers(-1, 5) == -5
+    assert multiply_numbers(0, 10) == 0
+
+def test_divide_numbers():
+    """
+    Test a hypothetical divide_numbers function.
+    """
+    # assert my_module.divide_numbers(10, 2) == 5
+    pass # Placeholder if no such function exists yet
+
 if __name__ == '__main__':
     unittest.main()
